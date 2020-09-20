@@ -9,7 +9,17 @@ require "structable/array"
 
 module Structable
   class Any; end
-  Boolean = [TrueClass, FalseClass]
-  Number = [Integer, Float]
-  Primitive = [String, Float, Integer, TrueClass, FalseClass]
+  Boolean = [TrueClass, FalseClass].freeze
+  Number = [Integer, Float].freeze
+  Primitive = [String, Float, Integer, TrueClass, FalseClass].freeze
+
+  CAST_METHODS = {
+    "String" => :to_s,
+    "Float" => :to_f,
+    "Integer" => :to_i,
+    "Hash" => :to_h,
+    "Symbol" => :to_sym,
+    "Array" => :to_a
+  }.freeze
+
 end

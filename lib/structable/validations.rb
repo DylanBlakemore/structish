@@ -9,14 +9,26 @@ module Structable
     module InstanceMethods
 
       def validate_structable(constructor)
-        apply_defaults(constructor)
+        cast_and_apply_defaults(constructor)
         validate_constructor(constructor)
         define_accessor_methods(constructor)
       end
 
-      def apply_defaults(constructor)
+      def cast_and_apply_defaults(constructor)
         self.class.optional_attributes.each do |attribute|
-          constructor[attribute[:key]] = attribute[:default] if constructor[attribute[:key]].nil?
+          key = attribute[:key]
+          constructor[key] = attribute[:default] if constructor[key].nil?
+        end
+
+        (self.class.attributes + global_attributes_for(constructor)).each do |attribute|
+          key = attribute[:key]
+          if attribute[:cast] && constructor[key] && constructor[key] != attribute[:klass]
+            if cast_method = Structable::CAST_METHODS[attribute[:klass].to_s]
+              constructor[key] = constructor[key].send(cast_method)
+            else
+              constructor[key] = attribute[:klass].new(constructor[key])
+            end
+          end
         end
       end
   
@@ -46,10 +58,10 @@ module Structable
       end
 
       def global_attributes_for(constructor)
-        constructor_keys = constructor.keys
-        self.class.global_validations.each_with_object([]) do |validation, arr|
-          constructor_keys.each do |key|
-            arr << validation.merge(key: key)
+        @global_attributes ||= begin
+          constructor_keys = constructor.keys
+          self.class.global_validations.each_with_object([]) do |validation, arr|
+            constructor_keys.each { |key| arr << validation.merge(key: key) }
           end
         end
       end
@@ -74,9 +86,9 @@ module Structable
           raise(Structable::ValidationError, "Class mismatch for #{attribute[:key]} -> #{value.class}. Should be a #{valid_klasses.join(", ")}") unless valid
         end
       end
-  
+
       def validate_one_of(attribute, value)
-        valid = attribute[:one_of] ? options.include?(attribute[:one_of]) : true
+        valid = attribute[:one_of] ? attribute[:one_of].include?(value) : true
         raise(Structable::ValidationError, "Value not one of #{attribute[:one_of].join(", ")}") unless valid
       end
   

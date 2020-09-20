@@ -23,6 +23,22 @@ describe Structable::Hash do
     end
   end
 
+  describe "cast to data type" do
+    context "when the desired class is a standard data type" do
+      let(:hash_klass) do
+        stub_const("SimpleStructableChild", Class.new(Structable::Hash))
+        SimpleStructableChild.class_eval do
+          validate :validated_key, Float, cast: true
+        end
+        SimpleStructableChild
+      end
+
+      it "casts the value to the desired type" do
+        expect(hash_klass.new({validated_key: "0.0"})[:validated_key]).to eq(0.0)
+      end
+    end
+  end
+
   describe "custom data types" do
     describe "Any" do
       let(:hash_klass) do
