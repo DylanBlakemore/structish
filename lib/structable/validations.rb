@@ -22,7 +22,7 @@ module Structable
 
         (self.class.attributes + global_attributes_for(constructor)).each do |attribute|
           key = attribute[:key]
-          if attribute[:cast] && constructor[key] && constructor[key] != attribute[:klass]
+          if attribute[:cast] && constructor[key] && !constructor[key].is_a?(attribute[:klass])
             if cast_method = Structable::CAST_METHODS[attribute[:klass].to_s]
               constructor[key] = constructor[key].send(cast_method)
             else
@@ -71,7 +71,7 @@ module Structable
       end
   
       def validate_class(attribute, value)
-        if attribute[:klass].nil? || attribute[:klass] == Structable::Any
+        if attribute[:klass].nil?
           return
         elsif attribute[:of]
           valid = if attribute[:klass] <= ::Array

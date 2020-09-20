@@ -36,7 +36,7 @@ describe Structable::Array do
 
       context "when an argument is optional and does not exist" do
         it "creates the object" do
-          expect(array_klass.new([15])[0]).to eq(15)
+          expect(array_klass.new([15]).first).to eq(15)
         end
       end
     end

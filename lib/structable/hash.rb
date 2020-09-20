@@ -19,7 +19,7 @@ module Structable
     end
 
     def merge(other)
-      self.class.new(super(other))
+      self.class.new(to_h.merge(other))
     end
 
     protected

@@ -8,7 +8,7 @@ require "structable/hash"
 require "structable/array"
 
 module Structable
-  class Any; end
+  Any = nil
   Boolean = [TrueClass, FalseClass].freeze
   Number = [Integer, Float].freeze
   Primitive = [String, Float, Integer, TrueClass, FalseClass].freeze
