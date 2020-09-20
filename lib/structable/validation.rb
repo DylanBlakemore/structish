@@ -3,7 +3,7 @@ module Structable
 
     attr_reader :value, :conditions
 
-    def initialize(conditions, value)
+    def initialize(value, conditions)
       @value = value
       @conditions = conditions
     end

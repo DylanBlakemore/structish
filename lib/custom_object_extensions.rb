@@ -36,3 +36,34 @@ class ::Hash
     HashWithIndifferentNumericalAccess.new(self)
   end
 end
+
+class ::Object
+  def float?
+    !!Float(self) rescue false
+  end
+
+  def int?
+    !!Integer(self) rescue false
+  end
+
+  def numerical?
+    self.float? || self.int?
+  end
+
+  def num_eq?(other)
+    return true if self == other
+    if self.numerical? && other.numerical?
+      self.to_f == other.to_f
+    end
+  end
+end
+
+class ::Array
+  def values
+    self.to_a
+  end
+
+  def keys
+    [*0..self.size-1]
+  end
+end
