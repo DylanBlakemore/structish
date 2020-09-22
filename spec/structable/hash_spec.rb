@@ -23,6 +23,53 @@ describe Structable::Hash do
     end
   end
 
+  describe "defaults" do
+    context "when a default is supplied for an optional attribute" do
+      let(:hash_klass) do
+        stub_const("SimpleStructableChild", Class.new(Structable::Hash))
+        SimpleStructableChild.class_eval do
+          validate :validated_key, Structable::Any, optional: true, default: 1
+        end
+        SimpleStructableChild
+      end
+
+      context "when the attribute is nil" do
+        it "applies the default" do
+          expect(hash_klass.new({}).validated_key).to eq(1)
+          expect(hash_klass.new({})[:validated_key]).to eq(1)
+        end
+      end
+
+      context "when the attribute is present" do
+        it "does not apply the default" do
+          expect(hash_klass.new({validated_key: 2}).validated_key).to eq(2)
+          expect(hash_klass.new({validated_key: 2})[:validated_key]).to eq(2)
+        end
+      end
+
+      context "when the attribute is falsey but not nil" do
+        it "does not apply the default" do
+          expect(hash_klass.new({validated_key: false}).validated_key).to eq(false)
+          expect(hash_klass.new({validated_key: false})[:validated_key]).to eq(false)
+        end
+      end
+    end
+
+    context "when a default is supplied for a required attribute" do
+      let(:hash_klass) do
+        stub_const("SimpleStructableChild", Class.new(Structable::Hash))
+        SimpleStructableChild.class_eval do
+          validate :validated_key, Structable::Any, default: 1
+        end
+        SimpleStructableChild
+      end
+
+      it "raises an error" do
+        expect { hash_klass.new({}) }.to raise_error
+      end
+    end
+  end
+
   describe "cast to data type" do
     context "when the desired class is a standard data type" do
       let(:hash_klass) do
@@ -82,10 +129,29 @@ describe Structable::Hash do
         SimpleStructableChild
       end
 
-      it "allows TrueClass and FalseClass data types" do
+      it "allows float and integer data types" do
         expect(hash_klass.new(validated_key: 0.0).validated_key).to eq(0.0)
         expect(hash_klass.new(validated_key: 1).validated_key).to eq(1)
         expect { hash_klass.new(validated_key: "hello") }.to raise_error("Class mismatch for validated_key -> String. Should be a Integer, Float")
+      end
+    end
+
+    describe "Primitive" do
+      let(:hash_klass) do
+        stub_const("SimpleStructableChild", Class.new(Structable::Hash))
+        SimpleStructableChild.class_eval do
+          validate :validated_key, Structable::Primitive
+        end
+        SimpleStructableChild
+      end
+
+      it "allows primitive data types" do
+        expect(hash_klass.new(validated_key: 0.0).validated_key).to eq(0.0)
+        expect(hash_klass.new(validated_key: 1).validated_key).to eq(1)
+        expect(hash_klass.new(validated_key: false).validated_key).to eq(false)
+        expect(hash_klass.new(validated_key: true).validated_key).to eq(true)
+        expect(hash_klass.new(validated_key: "hello").validated_key).to eq("hello")
+        expect { hash_klass.new(validated_key: {}) }.to raise_error("Class mismatch for validated_key -> Hash. Should be a String, Float, Integer, TrueClass, FalseClass")
       end
     end
   end

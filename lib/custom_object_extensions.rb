@@ -38,22 +38,24 @@ class ::Hash
 end
 
 class ::Object
-  def float?
+  def floaty?
     !!Float(self) rescue false
   end
 
-  def int?
+  def inty?
     !!Integer(self) rescue false
   end
 
   def numerical?
-    self.float? || self.int?
+    self.floaty? || self.inty?
   end
 
   def num_eq?(other)
     return true if self == other
     if self.numerical? && other.numerical?
       self.to_f == other.to_f
+    else
+      false
     end
   end
 end
