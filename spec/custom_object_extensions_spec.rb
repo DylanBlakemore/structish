@@ -1,5 +1,14 @@
 require "spec_helper"
 
+describe ::Hash do
+  describe "#with_indifferent_numerical_access" do
+    it "returns a HashWithIndifferentNumericalAccess object with the same data" do
+      expect({foo: "bar"}.with_indifferent_numerical_access).to be_a(HashWithIndifferentNumericalAccess)
+      expect({foo: "bar"}.with_indifferent_numerical_access.to_h).to eq({foo: "bar"})
+    end
+  end
+end
+
 describe ::Array do
   describe "#values" do
     context "for empty arrays" do
