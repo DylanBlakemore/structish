@@ -72,6 +72,18 @@ Finally we can see how `Structish` objects inherit the functionality from the pa
 
 Note that the required class can be an array, and will pass if the value is an instance of one of the classes in the array.
 
+When the required class is a `Array`, we can define a further requirement using the `of:` keyword to validate each element of the value array.
+
+```ruby
+class MyStructishHash < Structish::Hash
+    validate :foo, ::Array, of: Float
+end
+
+MyStructishHash.new({foo: 1.0}) -> "Structish::ValidationError: Class mismatch for foo. All values should be of type Float"
+MyStructishHash.new({foo: [1.0, "bar"]}) -> "Structish::ValidationError: Class mismatch for foo. All values should be of type Float"
+MyStructishHash.new({foo: [1.0, 2.0]}) -> {:foo=>[1.0, 2.0]}
+```
+
 #### Optional attributes
 
 `Structish` object attributes can be flagged as optional. The usage should be fairly intuitive:
