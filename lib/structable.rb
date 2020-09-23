@@ -3,7 +3,6 @@ require "custom_object_extensions"
 require "structable/validation_error"
 require "structable/validation"
 require "structable/validations"
-require "structable/mutations"
 require "structable/hash"
 require "structable/array"
 

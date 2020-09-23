@@ -17,7 +17,12 @@ module Structable
       def cast_and_apply_defaults(constructor)
         self.class.optional_attributes.each do |attribute|
           key = attribute[:key]
-          constructor[key] = attribute[:default] if constructor[key].nil?
+          default_value = if attribute[:default].is_a?(::Array) && attribute[:default].first == :other_attribute
+            constructor[attribute[:default][1]]
+          else
+            attribute[:default]
+          end
+          constructor[key] = default_value if constructor[key].nil?
         end
 
         (self.class.attributes + global_attributes_for(constructor)).each do |attribute|
@@ -100,6 +105,10 @@ module Structable
     end
 
     module ClassMethods
+
+      def attribute(key)
+        [:other_attribute, key]
+      end
 
       def validate(key, klass = nil, kwargs = {}, &block)
         attribute_array = kwargs[:optional] ? optional_attributes : required_attributes

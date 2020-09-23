@@ -49,7 +49,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport (~> 4.0)
   bundler (~> 1.17)
   factory_bot
   pry

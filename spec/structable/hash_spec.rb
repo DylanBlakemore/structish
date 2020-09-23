@@ -53,6 +53,20 @@ describe Structable::Hash do
           expect(hash_klass.new({validated_key: false})[:validated_key]).to eq(false)
         end
       end
+
+      context "when the default is defined as another attribute" do
+        let(:hash_klass) do
+          stub_const("SimpleStructableChild", Class.new(Structable::Hash))
+          SimpleStructableChild.class_eval do
+            validate :validated_key, Structable::Any, optional: true, default: attribute(:unvalidated_key)
+          end
+          SimpleStructableChild
+        end
+
+        it "defaults the value to the value from the specified attribute" do
+          expect(hash_klass.new(unvalidated_key: 1.0).validated_key).to eq(1.0)
+        end
+      end
     end
 
     context "when a default is supplied for a required attribute" do
