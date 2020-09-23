@@ -54,7 +54,7 @@ MyStructishHash.new({foo: 1.0, bar: 2.0}) -> {:foo=>1.0, :bar=>2.0}
 # Dynamic method creation
 MyStructishHash.new({foo: 1.0, bar: 2.0}).foo -> 1.0
 MyStructishHash.new({foo: 1.0, bar: 2.0})[:foo] -> 1.0
-MyStructishHash.new({foo: 1.0, bar: 2.0}).foo -> "NoMethodError: undefined method `bar' for {:foo=>1.0, :bar=>2.0}:MyStructishHash"
+MyStructishHash.new({foo: 1.0, bar: 2.0}).bar -> "NoMethodError: undefined method `bar' for {:foo=>1.0, :bar=>2.0}:MyStructishHash"
 MyStructishHash.new({foo: 1.0, bar: 2.0})[:bar] -> 1.0
 
 # Inherited functionality
