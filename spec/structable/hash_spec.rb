@@ -1,16 +1,35 @@
 require "spec_helper"
 
-describe Structable::Hash do
+describe Structish::Hash do
 
   let(:hash_klass) do
-    stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-    SimpleStructableChild.class_eval do
+    stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+    SimpleStructishChild.class_eval do
       validate :validated_key
     end
-    SimpleStructableChild
+    SimpleStructishChild
   end
   let(:hash_object) { hash_klass.new(hash) }
   let(:hash) { {} }
+
+  describe "accessor mutations" do
+    context "when an accessor mutation block is defined" do
+      let(:hash_klass) do
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
+          validate :validated_key, Float do |num|
+            num * 2
+          end
+        end
+        SimpleStructishChild
+      end
+
+      it "applies the block to the dynamic accessor method but not to the constructor object" do
+        expect(hash_klass.new(validated_key: 5.0)[:validated_key]).to eq(5.0)
+        expect(hash_klass.new(validated_key: 5.0).validated_key).to eq(10.0)
+      end
+    end
+  end
 
   describe "#dynamic accessor methods" do
     let(:hash) { {validated_key: "A validated key", non_validated_key: "Not a validated key"} }
@@ -23,14 +42,42 @@ describe Structable::Hash do
     end
   end
 
+  describe "attribute restrictions" do
+    let(:hash_klass) do
+      stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+      SimpleStructishChild.class_eval do
+        validate :validated_key, Float
+        validate :other_validated_key, Float, optional: true
+
+        restrict_attributes
+      end
+      SimpleStructishChild
+    end
+
+    context "when the attributes are restricted" do
+      context "when a subset of the attributes are present" do
+        it "creates the object" do
+          expect(hash_klass.new({validated_key: 1.0}).to_h).to eq({validated_key: 1.0, other_validated_key: nil})
+          expect(hash_klass.new({validated_key: 1.0, other_validated_key: 2.0}).to_h).to eq({validated_key: 1.0, other_validated_key: 2.0})
+        end
+      end
+
+      context "when extra keys are present" do
+        it "raises an appropriate error" do
+          expect { hash_klass.new({validated_key: 1.0, unreal_key: 3.0}) }.to raise_error(Structish::ValidationError, "Keys are restricted to validated_key, other_validated_key")
+        end
+      end
+    end
+  end
+
   describe "defaults" do
     context "when a default is supplied for an optional attribute" do
       let(:hash_klass) do
-        stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-        SimpleStructableChild.class_eval do
-          validate :validated_key, Structable::Any, optional: true, default: 1
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
+          validate :validated_key, Structish::Any, optional: true, default: 1
         end
-        SimpleStructableChild
+        SimpleStructishChild
       end
 
       context "when the attribute is nil" do
@@ -56,11 +103,11 @@ describe Structable::Hash do
 
       context "when the default is defined as another attribute" do
         let(:hash_klass) do
-          stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-          SimpleStructableChild.class_eval do
-            validate :validated_key, Structable::Any, optional: true, default: attribute(:unvalidated_key)
+          stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+          SimpleStructishChild.class_eval do
+            validate :validated_key, Structish::Any, optional: true, default: member(:unvalidated_key)
           end
-          SimpleStructableChild
+          SimpleStructishChild
         end
 
         it "defaults the value to the value from the specified attribute" do
@@ -71,11 +118,11 @@ describe Structable::Hash do
 
     context "when a default is supplied for a required attribute" do
       let(:hash_klass) do
-        stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-        SimpleStructableChild.class_eval do
-          validate :validated_key, Structable::Any, default: 1
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
+          validate :validated_key, Structish::Any, default: 1
         end
-        SimpleStructableChild
+        SimpleStructishChild
       end
 
       it "raises an error" do
@@ -87,11 +134,11 @@ describe Structable::Hash do
   describe "cast to data type" do
     context "when the desired class is a standard data type" do
       let(:hash_klass) do
-        stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-        SimpleStructableChild.class_eval do
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
           validate :validated_key, Float, cast: true
         end
-        SimpleStructableChild
+        SimpleStructishChild
       end
 
       it "casts the value to the desired type" do
@@ -103,11 +150,11 @@ describe Structable::Hash do
   describe "custom data types" do
     describe "Any" do
       let(:hash_klass) do
-        stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-        SimpleStructableChild.class_eval do
-          validate :validated_key, Structable::Any
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
+          validate :validated_key, Structish::Any
         end
-        SimpleStructableChild
+        SimpleStructishChild
       end
 
       it "allows any data type" do
@@ -120,11 +167,11 @@ describe Structable::Hash do
 
     describe "Boolean" do
       let(:hash_klass) do
-        stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-        SimpleStructableChild.class_eval do
-          validate :validated_key, Structable::Boolean
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
+          validate :validated_key, Structish::Boolean
         end
-        SimpleStructableChild
+        SimpleStructishChild
       end
 
       it "allows TrueClass and FalseClass data types" do
@@ -136,11 +183,11 @@ describe Structable::Hash do
 
     describe "Number" do
       let(:hash_klass) do
-        stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-        SimpleStructableChild.class_eval do
-          validate :validated_key, Structable::Number
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
+          validate :validated_key, Structish::Number
         end
-        SimpleStructableChild
+        SimpleStructishChild
       end
 
       it "allows float and integer data types" do
@@ -152,11 +199,11 @@ describe Structable::Hash do
 
     describe "Primitive" do
       let(:hash_klass) do
-        stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-        SimpleStructableChild.class_eval do
-          validate :validated_key, Structable::Primitive
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
+          validate :validated_key, Structish::Primitive
         end
-        SimpleStructableChild
+        SimpleStructishChild
       end
 
       it "allows primitive data types" do
@@ -165,30 +212,31 @@ describe Structable::Hash do
         expect(hash_klass.new(validated_key: false).validated_key).to eq(false)
         expect(hash_klass.new(validated_key: true).validated_key).to eq(true)
         expect(hash_klass.new(validated_key: "hello").validated_key).to eq("hello")
-        expect { hash_klass.new(validated_key: {}) }.to raise_error("Class mismatch for validated_key -> Hash. Should be a String, Float, Integer, TrueClass, FalseClass")
+        expect(hash_klass.new(validated_key: :hello).validated_key).to eq(:hello)
+        expect { hash_klass.new(validated_key: {}) }.to raise_error("Class mismatch for validated_key -> Hash. Should be a String, Float, Integer, TrueClass, FalseClass, Symbol")
       end
     end
   end
 
   describe "custom validations" do
     let(:hash_klass) do
-      stub_const("PositiveValidation", Class.new(Structable::Validation))
+      stub_const("PositiveValidation", Class.new(Structish::Validation))
       PositiveValidation.class_eval do
         def validate
           value > 0
         end
       end
 
-      stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-      SimpleStructableChild.class_eval do
-        validate :validated_key, Structable::Number, validation: PositiveValidation
+      stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+      SimpleStructishChild.class_eval do
+        validate :validated_key, Structish::Number, validation: PositiveValidation
       end
-      SimpleStructableChild
+      SimpleStructishChild
     end
 
     context "when the value satisifies the validation" do
       it "raises an appropriate error" do
-        expect { hash_klass.new(validated_key: -1) }.to raise_error(Structable::ValidationError, "Custom validation PositiveValidation not met")
+        expect { hash_klass.new(validated_key: -1) }.to raise_error(Structish::ValidationError, "Custom validation PositiveValidation not met")
       end
     end
 
@@ -201,11 +249,11 @@ describe Structable::Hash do
 
   describe ".validate_all" do
     let(:hash_klass) do
-      stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-      SimpleStructableChild.class_eval do
-        validate_all Structable::Number
+      stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+      SimpleStructishChild.class_eval do
+        validate_all Structish::Number
       end
-      SimpleStructableChild
+      SimpleStructishChild
     end
 
     let(:instance) { hash_klass.new(hash) }
@@ -223,7 +271,7 @@ describe Structable::Hash do
       let(:hash) { {one: 1.0, two: "two"} }
 
       it "raises an appropriate error" do
-        expect { instance }.to raise_error(Structable::ValidationError, "Class mismatch for two -> String. Should be a Integer, Float")
+        expect { instance }.to raise_error(Structish::ValidationError, "Class mismatch for two -> String. Should be a Integer, Float")
       end
     end
   end
@@ -234,7 +282,7 @@ describe Structable::Hash do
         let(:hash) { {validated_key: nil, non_validated_key: "Not a validated key"} }
 
         it "raises an appropriate validation error" do
-          expect { hash_object }.to raise_error(Structable::ValidationError, "Required value validated_key not present")
+          expect { hash_object }.to raise_error(Structish::ValidationError, "Required value validated_key not present")
         end
       end
 
@@ -250,18 +298,18 @@ describe Structable::Hash do
 
     context "when 'of' is specified for an array class" do
       let(:hash_klass) do
-        stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-        SimpleStructableChild.class_eval do
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
           validate :validated_key, ::Array, of: String
         end
-        SimpleStructableChild
+        SimpleStructishChild
       end
 
       context "when the value is not an array" do
         let(:hash) { {validated_key: "hello"} }
 
         it "raises an appropriate error" do
-          expect { hash_object }.to raise_error(Structable::ValidationError, "Class mismatch for validated_key. All values should be of type String")
+          expect { hash_object }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key. All values should be of type String")
         end
       end
 
@@ -269,7 +317,7 @@ describe Structable::Hash do
         let(:hash) { {validated_key: ["hello", 0.0]} }
 
         it "raises an appropriate error" do
-          expect { hash_object }.to raise_error(Structable::ValidationError, "Class mismatch for validated_key. All values should be of type String")
+          expect { hash_object }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key. All values should be of type String")
         end
       end
 
@@ -284,18 +332,18 @@ describe Structable::Hash do
 
     context "when 'of' is specified for a hash class" do
       let(:hash_klass) do
-        stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-        SimpleStructableChild.class_eval do
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
           validate :validated_key, ::Hash, of: String
         end
-        SimpleStructableChild
+        SimpleStructishChild
       end
 
       context "when the value is not an array" do
         let(:hash) { {validated_key: "hello"} }
 
         it "raises an appropriate error" do
-          expect { hash_object }.to raise_error(Structable::ValidationError, "Class mismatch for validated_key. All values should be of type String")
+          expect { hash_object }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key. All values should be of type String")
         end
       end
 
@@ -303,7 +351,7 @@ describe Structable::Hash do
         let(:hash) { {validated_key: {0 => "First", 1 => 1.0}} }
 
         it "raises an appropriate error" do
-          expect { hash_object }.to raise_error(Structable::ValidationError, "Class mismatch for validated_key. All values should be of type String")
+          expect { hash_object }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key. All values should be of type String")
         end
       end
 
@@ -318,16 +366,16 @@ describe Structable::Hash do
 
     context "when validating class type" do
       let(:hash_klass) do
-        stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-        SimpleStructableChild.class_eval do
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
           validate :validated_key, ::Hash
         end
-        SimpleStructableChild
+        SimpleStructishChild
       end
 
       context "when the value class is not a child of the specified class" do
         it "raises an appropriate validation error" do
-          expect { hash_klass.new(validated_key: "hello") }.to raise_error(Structable::ValidationError, "Class mismatch for validated_key -> String. Should be a Hash")
+          expect { hash_klass.new(validated_key: "hello") }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key -> String. Should be a Hash")
         end
       end
 
@@ -347,11 +395,11 @@ describe Structable::Hash do
 
       context "when an array of classes is specified" do
         let(:hash_klass) do
-          stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-          SimpleStructableChild.class_eval do
+          stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+          SimpleStructishChild.class_eval do
             validate :validated_key, [String, Float]
           end
-          SimpleStructableChild
+          SimpleStructishChild
         end
 
         context "when the value class matches one of the classes" do
@@ -363,20 +411,20 @@ describe Structable::Hash do
 
         context "when the value class does not match one of the classes" do
           it "raises an appropriate validation error" do
-            expect { hash_klass.new(validated_key: :hello) }.to raise_error(Structable::ValidationError, "Class mismatch for validated_key -> Symbol. Should be a String, Float")
+            expect { hash_klass.new(validated_key: :hello) }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key -> Symbol. Should be a String, Float")
           end
         end
       end
 
       context "when symbolize is flagged as true" do
         let(:hash_klass) do
-          stub_const("SimpleStructableChild", Class.new(Structable::Hash))
-          SimpleStructableChild.class_eval do
+          stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+          SimpleStructishChild.class_eval do
             validate :validated_key
 
             symbolize true
           end
-          SimpleStructableChild
+          SimpleStructishChild
         end
 
         let(:hash) { {"validated_key" => 0} }

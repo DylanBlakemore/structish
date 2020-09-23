@@ -1,4 +1,4 @@
-module Structable
+module Structish
   class Validation
 
     attr_reader :value, :conditions

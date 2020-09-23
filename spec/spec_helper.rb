@@ -3,7 +3,7 @@ require 'pry'
 
 Bundler.setup
 
-require 'structable'
+require 'structish'
 require 'factory_bot'
 
 RSpec.configure do |config|

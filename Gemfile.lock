@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    structable (0.1.0)
+    structish (0.1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -55,7 +55,7 @@ DEPENDENCIES
   pry-byebug
   rake (~> 10.0)
   rspec
-  structable!
+  structish!
 
 BUNDLED WITH
    1.17.2

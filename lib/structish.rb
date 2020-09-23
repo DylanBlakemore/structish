@@ -1,16 +1,16 @@
-require "structable/version"
+require "structish/version"
 require "custom_object_extensions"
-require "structable/validation_error"
-require "structable/validation"
-require "structable/validations"
-require "structable/hash"
-require "structable/array"
+require "structish/validation_error"
+require "structish/validation"
+require "structish/validations"
+require "structish/hash"
+require "structish/array"
 
-module Structable
+module Structish
   Any = nil
   Boolean = [TrueClass, FalseClass].freeze
   Number = [Integer, Float].freeze
-  Primitive = [String, Float, Integer, TrueClass, FalseClass].freeze
+  Primitive = [String, Float, Integer, TrueClass, FalseClass, Symbol].freeze
 
   CAST_METHODS = {
     "String" => :to_s,

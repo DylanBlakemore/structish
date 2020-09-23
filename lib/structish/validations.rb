@@ -1,4 +1,4 @@
-module Structable
+module Structish
   module Validations
 
     def self.included base
@@ -8,10 +8,19 @@ module Structable
 
     module InstanceMethods
 
-      def validate_structable(constructor)
+      def validate_structish(constructor)
+        validate_key_restriction(constructor)
         cast_and_apply_defaults(constructor)
         validate_constructor(constructor)
         define_accessor_methods(constructor)
+      end
+
+      def validate_key_restriction(constructor)
+        if self.class.restrict?
+          allowed_keys = self.class.attributes.map { |attribute| attribute[:key] }
+          valid = (constructor.keys - allowed_keys).empty?
+          raise(Structish::ValidationError, "Keys are restricted to #{allowed_keys.join(", ")}") unless valid
+        end
       end
 
       def cast_and_apply_defaults(constructor)
@@ -28,7 +37,7 @@ module Structable
         (self.class.attributes + global_attributes_for(constructor)).each do |attribute|
           key = attribute[:key]
           if attribute[:cast] && constructor[key] && !constructor[key].is_a?(attribute[:klass])
-            if cast_method = Structable::CAST_METHODS[attribute[:klass].to_s]
+            if cast_method = Structish::CAST_METHODS[attribute[:klass].to_s]
               constructor[key] = constructor[key].send(cast_method)
             else
               constructor[key] = attribute[:klass].new(constructor[key])
@@ -72,7 +81,7 @@ module Structable
       end
 
       def validate_presence(attribute, value)
-        raise(Structable::ValidationError, "Required value #{attribute[:key]} not present") unless !value.nil?
+        raise(Structish::ValidationError, "Required value #{attribute[:key]} not present") unless !value.nil?
       end
   
       def validate_class(attribute, value)
@@ -84,30 +93,38 @@ module Structable
           elsif attribute[:klass] <= ::Hash
             value.class <= ::Hash && value.values.all? { |v| v.class <= attribute[:of] }
           end
-          raise(Structable::ValidationError, "Class mismatch for #{attribute[:key]}. All values should be of type #{attribute[:of].to_s}") unless valid
+          raise(Structish::ValidationError, "Class mismatch for #{attribute[:key]}. All values should be of type #{attribute[:of].to_s}") unless valid
         else
           valid_klasses = [attribute[:klass]].flatten.compact
           valid = valid_klasses.any? { |klass| value.class <= klass }
-          raise(Structable::ValidationError, "Class mismatch for #{attribute[:key]} -> #{value.class}. Should be a #{valid_klasses.join(", ")}") unless valid
+          raise(Structish::ValidationError, "Class mismatch for #{attribute[:key]} -> #{value.class}. Should be a #{valid_klasses.join(", ")}") unless valid
         end
       end
 
       def validate_one_of(attribute, value)
         valid = attribute[:one_of] ? attribute[:one_of].include?(value) : true
-        raise(Structable::ValidationError, "Value not one of #{attribute[:one_of].join(", ")}") unless valid
+        raise(Structish::ValidationError, "Value not one of #{attribute[:one_of].join(", ")}") unless valid
       end
   
       def validate_custom(attribute, value)
         valid = attribute[:validation] ? attribute[:validation].new(value, attribute).validate : true
-        raise(Structable::ValidationError, "Custom validation #{attribute[:validation].to_s} not met") unless valid
+        raise(Structish::ValidationError, "Custom validation #{attribute[:validation].to_s} not met") unless valid
       end
 
     end
 
     module ClassMethods
 
-      def attribute(key)
+      def member(key)
         [:other_attribute, key]
+      end
+
+      def restrict_attributes
+        @restrict_attributes = true
+      end
+
+      def restrict?
+        @restrict_attributes
       end
 
       def validate(key, klass = nil, kwargs = {}, &block)

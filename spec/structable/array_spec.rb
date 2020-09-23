@@ -1,13 +1,13 @@
 require "spec_helper"
 
-describe Structable::Array do
+describe Structish::Array do
   describe ".validate_all" do
     let(:array_klass) do
-      stub_const("SimpleStructableArray", Class.new(Structable::Array))
-      SimpleStructableArray.class_eval do
-        validate_all Structable::Number
+      stub_const("SimpleStructishArray", Class.new(Structish::Array))
+      SimpleStructishArray.class_eval do
+        validate_all Structish::Number
       end
-      SimpleStructableArray
+      SimpleStructishArray
     end
 
     context "when all entries pass validation" do
@@ -18,7 +18,7 @@ describe Structable::Array do
 
     context "when all the entries do not pass validation" do
       it "raises an appropriate error" do
-        expect { array_klass.new([0.0, "1.0"]) }.to raise_error(Structable::ValidationError, "Class mismatch for 1 -> String. Should be a Integer, Float")
+        expect { array_klass.new([0.0, "1.0"]) }.to raise_error(Structish::ValidationError, "Class mismatch for 1 -> String. Should be a Integer, Float")
       end
     end
   end
@@ -26,12 +26,12 @@ describe Structable::Array do
   describe ".validate" do
     describe "optional entries" do
       let(:array_klass) do
-        stub_const("SimpleStructableArray", Class.new(Structable::Array))
-        SimpleStructableArray.class_eval do
-          validate 0, Structable::Number
+        stub_const("SimpleStructishArray", Class.new(Structish::Array))
+        SimpleStructishArray.class_eval do
+          validate 0, Structish::Number
           validate 1, String, optional: true
         end
-        SimpleStructableArray
+        SimpleStructishArray
       end
 
       context "when an argument is optional and does not exist" do
@@ -43,12 +43,12 @@ describe Structable::Array do
 
     describe "class validation" do
       let(:array_klass) do
-        stub_const("SimpleStructableArray", Class.new(Structable::Array))
-        SimpleStructableArray.class_eval do
-          validate 0, Structable::Number
+        stub_const("SimpleStructishArray", Class.new(Structish::Array))
+        SimpleStructishArray.class_eval do
+          validate 0, Structish::Number
           validate 1, String
         end
-        SimpleStructableArray
+        SimpleStructishArray
       end
 
       let(:instance) { array_klass.new(array) }
@@ -66,7 +66,7 @@ describe Structable::Array do
         let(:array) { [0.0, 1.0]}
 
         it "raises an appropriate error" do
-          expect { instance }.to raise_error(Structable::ValidationError, "Class mismatch for 1 -> Float. Should be a String")
+          expect { instance }.to raise_error(Structish::ValidationError, "Class mismatch for 1 -> Float. Should be a String")
         end
       end
     end

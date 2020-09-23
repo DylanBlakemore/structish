@@ -1,11 +1,11 @@
 
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "structable/version"
+require "structish/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "structable"
-  spec.version       = Structable::VERSION
+  spec.name          = "structish"
+  spec.version       = Structish::VERSION
   spec.authors       = ["Dylan"]
   spec.email         = ["dylan.blakemore@zappistore.com"]
 

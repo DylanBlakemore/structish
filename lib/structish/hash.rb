@@ -1,11 +1,11 @@
-module Structable
+module Structish
   class Hash < ::Hash
 
-    include Structable::Validations
+    include Structish::Validations
 
     def initialize(raw_constructor = {})
       constructor = self.class.symbolize? ? raw_constructor.symbolize_keys : raw_constructor
-      validate_structable(constructor)
+      validate_structish(constructor)
 
       if constructor.respond_to?(:to_hash)
         super()
