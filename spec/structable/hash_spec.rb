@@ -105,7 +105,7 @@ describe Structish::Hash do
         let(:hash_klass) do
           stub_const("SimpleStructishChild", Class.new(Structish::Hash))
           SimpleStructishChild.class_eval do
-            validate :validated_key, Structish::Any, optional: true, default: member(:unvalidated_key)
+            validate :validated_key, Structish::Any, optional: true, default: delegate(:unvalidated_key)
           end
           SimpleStructishChild
         end

@@ -112,7 +112,7 @@ A useful feature of the default option is that you can map the value from one ke
 ```ruby
 class MyStructishHash < Structish::Hash
     validate :foo, Float
-    validate :bar, Float, optional: true, default: member(:foo)
+    validate :bar, Float, optional: true, default: delegate(:foo)
 end
 
 MyStructishHash.new({foo: 1.0}) -> {:foo=>1.0, :bar=>1.0}

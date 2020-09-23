@@ -115,7 +115,7 @@ module Structish
 
     module ClassMethods
 
-      def member(key)
+      def delegate(key)
         [:other_attribute, key]
       end
 
