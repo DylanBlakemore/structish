@@ -1,5 +1,5 @@
 env:
-  RUBY_VERSION: 2.6.6
+  RUBY_VERSION: '2.6.6'
 
 name: Tests
 on: [push, pull_request]
@@ -8,7 +8,7 @@ jobs:
     name: Rspec
     runs-on: ubuntu-18.04
     steps:
-      - uses: action/checkout@v1
+      - uses: action/checkout@v2
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: ${{ env.RUBY_VERSION }}
@@ -18,3 +18,9 @@ jobs:
           bundler install
       - name: Run tests
         run: bundler exec rspec
+      - name: Upload coverage results
+        uses: actions/upload-artifact@master
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage
