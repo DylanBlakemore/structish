@@ -12,6 +12,13 @@ describe Structish::Hash do
   let(:hash_object) { hash_klass.new(hash) }
   let(:hash) { {} }
 
+  describe "#merge" do
+    it "returns an instance of the structish class" do
+      expect(hash_klass.new(validated_key: 1).merge(unvalidated_key: 2)).to be_a(SimpleStructishChild)
+      expect { hash_klass.new(validated_key: 1).merge(validated_key: nil) }.to raise_error(Structish::ValidationError, "Required value validated_key not present")
+    end
+  end
+
   describe "accessor mutations" do
     context "when an accessor mutation block is defined" do
       let(:hash_klass) do
@@ -143,6 +150,28 @@ describe Structish::Hash do
 
       it "casts the value to the desired type" do
         expect(hash_klass.new({validated_key: "0.0"})[:validated_key]).to eq(0.0)
+      end
+    end
+
+    context "for more complex data types" do
+      let(:hash_klass) do
+        stub_const("CastClass", Class.new(Object))
+        CastClass.class_eval do
+          attr_accessor :member
+          def initialize(m)
+            @member = m
+          end
+        end
+
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
+          validate :validated_key, CastClass, cast: true
+        end
+        SimpleStructishChild
+      end
+
+      it "uses Class.new to cast the value" do
+        expect(hash_klass.new({validated_key: 1}).validated_key).to be_a(CastClass)
       end
     end
   end
@@ -277,6 +306,20 @@ describe Structish::Hash do
   end
 
   describe "#initialize" do
+    context "when a non-hash is passed to the constructor" do
+      let(:hash_klass) do
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
+          validate :validated_key
+        end
+        SimpleStructishChild
+      end
+
+      it "raises an appropriate error" do
+        expect { hash_klass.new(1) }.to raise_error(ArgumentError, "Only hash-like objects can be used as constructors for Structish::Hash")
+      end
+    end
+
     context "when validating presence" do
       context "when the value is nil" do
         let(:hash) { {validated_key: nil, non_validated_key: "Not a validated key"} }

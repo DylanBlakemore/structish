@@ -9,6 +9,28 @@ describe ::Hash do
 end
 
 describe HashWithIndifferentNumericalAccess do
+  describe "#initialize" do
+    context "when a non-hash is passed to the constructor" do
+      it "raises an appropriate error" do
+        expect { HashWithIndifferentNumericalAccess.new(1) }.to raise_error(ArgumentError, "Only hash-like objects can be used as constructors for HashWithIndifferentNumericalAccess")
+      end
+    end
+  end
+
+  describe "#with_indifferent_numerical_access" do
+    let(:hash) do
+      {
+        0.0 => "One",
+        1.0 => "Two"
+      }.with_indifferent_numerical_access
+    end
+
+    it "returns a copy of itself" do
+      expect(hash.with_indifferent_numerical_access).to eq(hash)
+      expect(hash.with_indifferent_numerical_access).to be_a(HashWithIndifferentNumericalAccess)
+    end
+  end
+
   describe "#[]" do
     context "when the hash key is a float" do
       let(:hash) do

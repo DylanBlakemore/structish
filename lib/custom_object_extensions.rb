@@ -7,7 +7,7 @@ class HashWithIndifferentNumericalAccess < Hash
       self.default = hash.default if hash.default
       self.default_proc = hash.default_proc if hash.default_proc
     else
-      super(constructor)
+      raise(ArgumentError, "Only hash-like objects can be used as constructors for HashWithIndifferentNumericalAccess")
     end
   end
 

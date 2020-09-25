@@ -144,7 +144,7 @@ end
 StructishHashWithoutCasting.new({foo: "1"}) -> "Structish::ValidationError: Class mismatch for foo -> String. Should be a Float"
 
 class StructishHashWithCasting < Structish::Hash
-    validate :foo, Float, cast: Float
+    validate :foo, Float, cast: true
 end
 
 StructishHashWithCasting.new({foo: "1"}) -> {:foo=>1.0}
