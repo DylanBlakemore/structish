@@ -1,12 +1,20 @@
-name: Rspec
+env:
+  RUBY_VERSION: 2.6.6
 
+name: Tests
 on: [push, pull_request]
-
 jobs:
-  build:
-    name: CI
-    runs-on: ubuntu-latest
-
-  steps:
-    - name: Test with rspec
-      run: bundle exec rspec
+  rspec-test:
+    name: Rspec
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: action/checkout@v1
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+      - name: Install dependencies
+        run: |
+          gem install bundler
+          bundler install
+      - name: Run tests
+        run: bundler exec rspec
