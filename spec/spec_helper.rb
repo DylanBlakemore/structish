@@ -1,6 +1,11 @@
 require 'bundler/setup'
 require 'pry'
+require 'simple_cov'
+require 'codecov'
+require 'structish'
 
 Bundler.setup
 
-require 'structish'
+
+SimpleCov.start
+SimpleCov.formatter = SimpleCov::Formatter::Codecov

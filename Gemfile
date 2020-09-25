@@ -8,6 +8,7 @@ gem 'activesupport', '~> 4.0'
 
 group :test do
   gem "rspec"
+  gem "codecov"
 end
 
 group :test, :development do
