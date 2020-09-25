@@ -19,9 +19,8 @@ jobs:
       - name: Run tests
         run: bundler exec rspec
       - name: Upload coverage results
-        uses: codecov/codecov-action@v1
+        uses: actions/upload-artifact@master
+        if: always()
         with:
           name: coverage-report
-          file: ./coverage.xml
-          directory: ./coverage/reports/
-          path_to_write_report: ./coverage/codecov_report.gz
+          path: coverage
