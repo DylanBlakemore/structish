@@ -126,7 +126,7 @@ describe Structish::Hash do
       end
 
       it "raises an error" do
-        expect { hash_klass.new({}) }.to raise_error
+        expect { hash_klass.new({}) }.to raise_error(Structish::ValidationError, "Required value validated_key not present")
       end
     end
   end
