@@ -10,7 +10,8 @@ module Structish
 
       def validate_structish(constructor)
         validate_key_restriction(constructor)
-        cast_and_apply_defaults(constructor)
+        apply_defaults(constructor)
+        cast_values(constructor)
         validate_constructor(constructor)
         define_accessor_methods(constructor)
       end
@@ -23,7 +24,7 @@ module Structish
         end
       end
 
-      def cast_and_apply_defaults(constructor)
+      def apply_defaults(constructor)
         self.class.optional_attributes.each do |attribute|
           key = attribute[:key]
           default_value = if attribute[:default].is_a?(::Array) && attribute[:default].first == :other_attribute
@@ -33,15 +34,29 @@ module Structish
           end
           constructor[key] = default_value if constructor[key].nil?
         end
+      end
 
+      def cast_values(constructor)
         (self.class.attributes + global_attributes_for(constructor)).each do |attribute|
           key = attribute[:key]
-          if attribute[:cast] && constructor[key] && !constructor[key].is_a?(attribute[:klass])
-            if cast_method = Structish::CAST_METHODS[attribute[:klass].to_s]
-              constructor[key] = constructor[key].send(cast_method)
+          if attribute[:cast] && constructor[key]
+            if attribute[:klass] == ::Array && attribute[:of]
+              constructor[key] = constructor[key].map { |v| cast_single(v, attribute[:of]) }
             else
-              constructor[key] = attribute[:klass].new(constructor[key])
+              constructor[key] = cast_single(constructor[key], attribute[:klass])
             end
+          end
+        end
+      end
+
+      def cast_single(value, klass)
+        if value.is_a?(klass)
+          value
+        else
+          if cast_method = Structish::CAST_METHODS[klass.to_s]
+            value.send(cast_method)
+          else
+            klass.new(value)
           end
         end
       end

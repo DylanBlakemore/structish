@@ -174,6 +174,44 @@ describe Structish::Hash do
         expect(hash_klass.new({validated_key: 1}).validated_key).to be_a(CastClass)
       end
     end
+
+    context "when an Array of classes is specified" do
+      context "when the desired class is a standard data type" do
+        let(:hash_klass) do
+          stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+          SimpleStructishChild.class_eval do
+            validate :validated_key, ::Array, of: Float, cast: true
+          end
+          SimpleStructishChild
+        end
+
+        it "casts each element of the array" do
+          expect(hash_klass.new(validated_key: ["0.0", 5.0, 9]).validated_key).to eq([0.0, 5.0, 9.0])
+        end
+      end
+
+      context "for more complex data types" do
+        let(:hash_klass) do
+          stub_const("CastClass", Class.new(Object))
+          CastClass.class_eval do
+            attr_accessor :member
+            def initialize(m)
+              @member = m
+            end
+          end
+
+          stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+          SimpleStructishChild.class_eval do
+            validate :validated_key, ::Array, of: CastClass, cast: true
+          end
+          SimpleStructishChild
+        end
+
+        it "casts each element of the array" do
+          expect(hash_klass.new(validated_key: ["0.0", 5.0, 9]).validated_key.map(&:class)).to eq([CastClass, CastClass, CastClass])
+        end
+      end
+    end
   end
 
   describe "custom data types" do

@@ -35,6 +35,11 @@ class ::Hash
   def with_indifferent_numerical_access
     HashWithIndifferentNumericalAccess.new(self)
   end
+
+  def to_structish(structish_klass)
+    raise(ArgumentError, "Class is not a child of Structish::Hash") unless structish_klass < Structish::Hash
+    structish_klass.new(self)
+  end
 end
 
 class ::Object
@@ -67,5 +72,10 @@ class ::Array
 
   def keys
     [*0..self.size-1]
+  end
+
+  def to_structish(structish_klass)
+    raise(ArgumentError, "Class is not a child of Structish::Array") unless structish_klass < Structish::Array
+    structish_klass.new(self)
   end
 end
