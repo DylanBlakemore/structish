@@ -84,6 +84,17 @@ MyStructishHash.new({foo: [1.0, "bar"]}) -> "Structish::ValidationError: Class m
 MyStructishHash.new({foo: [1.0, 2.0]}) -> {:foo=>[1.0, 2.0]}
 ```
 
+#### Accessor aliasing
+
+Instead of having the accessor methods be automatically named, we can define an alias for the method.
+```ruby
+class MyStructishHash < Structish::Hash
+    validate :foo, Float, alias_to: :aliased_method
+end
+
+MyStructishHash.new({foo: 1.0}).aliased_method -> 1.0
+```
+
 #### Optional attributes
 
 `Structish` object attributes can be flagged as optional. The usage should be fairly intuitive:
@@ -124,7 +135,7 @@ A useful feature of the default option is that you can map the value from one ke
 ```ruby
 class MyStructishHash < Structish::Hash
     validate :foo, Float
-    validate :bar, Float, optional: true, default: delegate(:foo)
+    validate :bar, Float, optional: true, default: assign(:foo)
 end
 
 MyStructishHash.new({foo: 1.0}) -> {:foo=>1.0, :bar=>1.0}
@@ -198,6 +209,22 @@ MyStructishHash.new(validated_key: 5.0).validated_key -> 10.0
 ```
 
 It is important to realize that the mutation *only applies to the dynamically created accessor method*. We still want to allow access to the original data - the idea here is that the accessor method can perform any operations on the original value, while the hash version stores the original data.
+
+#### Function delegations
+
+Along with dynamically created accessor methods, we can create delegations, so that calling a function on the `Structish` object returns the result of calling it on the specified attribute.
+
+```ruby
+class MyStructishHash < Structish::Hash
+    validate :foo, String
+
+    delegate :downcase, :foo
+    delegate :upcase, :foo
+end
+
+MyStructishHash.new(validated_key: "HeLlo").downcase -> "hello"
+MyStructishHash.new(validated_key: "HeLlo").upcase -> "HELLO"
+```
 
 ### Custom validations
 

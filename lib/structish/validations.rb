@@ -14,6 +14,13 @@ module Structish
         cast_values(constructor)
         validate_constructor(constructor)
         define_accessor_methods(constructor)
+        define_delegated_methods
+      end
+
+      def define_delegated_methods
+        self.class.delegations.each do |function, object|
+          define_singleton_method(function.to_s) { self.send(object.to_sym).send(function.to_sym) }
+        end
       end
 
       def validate_key_restriction(constructor)
@@ -134,7 +141,15 @@ module Structish
 
     module ClassMethods
 
-      def delegate(key)
+      def delegations
+        @delegations ||= []
+      end
+
+      def delegate(function, object)
+        delegations << [function, object]
+      end
+
+      def assign(key)
         [:other_attribute, key]
       end
 

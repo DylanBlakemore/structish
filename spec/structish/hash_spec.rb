@@ -12,6 +12,26 @@ describe Structish::Hash do
   let(:hash_object) { hash_klass.new(hash) }
   let(:hash) { {} }
 
+  describe "delegations" do
+    context "when a function is delegated to an attribute" do
+      let(:hash_klass) do
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
+          validate :validated_key, String
+          delegate :downcase, :validated_key
+          delegate :upcase, :validated_key
+        end
+        SimpleStructishChild
+      end
+
+      it "creates the function correctly" do
+        object = hash_klass.new(validated_key: "HeLlo")
+        expect(object.downcase).to eq("hello")
+        expect(object.upcase).to eq("HELLO")
+      end
+    end
+  end
+
   describe "#merge" do
     it "returns an instance of the structish class" do
       expect(hash_klass.new(validated_key: 1).merge(unvalidated_key: 2)).to be_a(SimpleStructishChild)
@@ -72,6 +92,23 @@ describe Structish::Hash do
       expect(hash_object.validated_key).to eq("A validated key")
       expect(hash_object[:non_validated_key]).to eq("Not a validated key")
       expect { hash_object.non_validated_key }.to raise_error(NoMethodError)
+    end
+
+    context "when an alias is defined" do
+      let(:hash_klass) do
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
+          validate :validated_key, Float, alias_to: :float_value
+        end
+        SimpleStructishChild
+      end
+
+      let(:hash) { {validated_key: 0.0} }
+
+      it "renames the accessor method to the alias value" do
+        expect(hash_object.float_value).to eq(0.0)
+        expect { hash_object.validated_key }.to raise_error(NoMethodError)
+      end
     end
   end
 
@@ -138,7 +175,7 @@ describe Structish::Hash do
         let(:hash_klass) do
           stub_const("SimpleStructishChild", Class.new(Structish::Hash))
           SimpleStructishChild.class_eval do
-            validate :validated_key, Structish::Any, optional: true, default: delegate(:unvalidated_key)
+            validate :validated_key, Structish::Any, optional: true, default: assign(:unvalidated_key)
           end
           SimpleStructishChild
         end
