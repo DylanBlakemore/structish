@@ -66,8 +66,7 @@ module Structish
           method_name = attribute[:alias_to] ? attribute[:alias_to].to_s : attribute[:key].to_s
           next if method_name.numerical?
           define_singleton_method(method_name) do
-            value = constructor[attribute[:key]]
-            attribute[:proc] ? attribute[:proc].call(value) : value
+            attribute[:proc] ? attribute[:proc].call(self[attribute[:key]]) : self[attribute[:key]]
           end
         end
       end
@@ -124,6 +123,11 @@ module Structish
       def validate_custom(attribute, value)
         valid = attribute[:validation] ? attribute[:validation].new(value, attribute).validate : true
         raise(Structish::ValidationError, "Custom validation #{attribute[:validation].to_s} not met") unless valid
+      end
+
+      def []=(key, value)
+        super(key, value)
+        validate_structish(self)
       end
 
     end

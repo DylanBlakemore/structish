@@ -19,6 +19,32 @@ describe Structish::Hash do
     end
   end
 
+  describe "value reassignment" do
+    let(:hash_klass) do
+      stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+      SimpleStructishChild.class_eval do
+        validate :validated_key, Float
+      end
+      SimpleStructishChild
+    end
+
+    let(:hash_object) { hash_klass.new(validated_key: 0.0) }
+
+    context "when the new value is valid" do
+      it "does not raise an error" do
+        hash_object[:validated_key] = 5.0
+        expect(hash_object[:validated_key]).to eq(5.0)
+        expect(hash_object.validated_key).to eq(5.0)
+      end
+    end
+
+    context "when the new value is invalid" do
+      it "raises an error" do
+        expect { hash_object[:validated_key] = "5.0" }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key -> String. Should be a Float")
+      end
+    end
+  end
+
   describe "accessor mutations" do
     context "when an accessor mutation block is defined" do
       let(:hash_klass) do
