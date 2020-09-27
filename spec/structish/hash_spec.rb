@@ -515,20 +515,6 @@ describe Structish::Hash do
           expect(hash_klass.new(hash)[:validated_key]).to eq(0)
         end
       end
-
-      context "when the strict option is flagged" do
-        context "when the value class is a child class" do
-          it "raises an appropriate validation error" do
-
-          end
-        end
-
-        context "when the value class is an exact match" do
-          it "creates the object" do
-
-          end
-        end
-      end
     end
   end
 end
