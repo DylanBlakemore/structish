@@ -74,6 +74,10 @@ class ::Array
     [*0..self.size-1]
   end
 
+  def pluck(key)
+    map { |v| v[key] }
+  end
+
   def to_structish(structish_klass)
     raise(ArgumentError, "Class is not a child of Structish::Array") unless structish_klass < Structish::Array
     structish_klass.new(self)

@@ -2,7 +2,7 @@
 require 'active_support/core_ext/hash'
 
 require "structish/version"
-require "custom_object_extensions"
+require "structish_object_extensions"
 require "structish/validation_error"
 require "structish/validation"
 require "structish/validations"

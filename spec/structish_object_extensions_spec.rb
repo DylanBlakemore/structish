@@ -37,6 +37,12 @@ describe ::Hash do
 end
 
 describe ::Array do
+  describe "#pluck" do
+    it "pulls the values out from an array of hashes" do
+      expect([{key: "value_1"}, {key: "value_2"}].pluck(:key)).to eq(["value_1", "value_2"])
+    end
+  end
+
   describe "#to_structish" do
     context "when the class is a valid structish class" do
       let(:array_klass) do
