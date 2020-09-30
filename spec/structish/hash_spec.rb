@@ -483,7 +483,7 @@ describe Structish::Hash do
         SimpleStructishChild
       end
 
-      context "when the value is not an array" do
+      context "when the value is not a hash" do
         let(:hash) { {validated_key: "hello"} }
 
         it "raises an appropriate error" do
@@ -491,7 +491,7 @@ describe Structish::Hash do
         end
       end
 
-      context "when some objects in the array are not of the appropriate type" do
+      context "when some objects in the hash are not of the appropriate type" do
         let(:hash) { {validated_key: {0 => "First", 1 => 1.0}} }
 
         it "raises an appropriate error" do
@@ -499,7 +499,7 @@ describe Structish::Hash do
         end
       end
 
-      context "when all objects in the array are of the specified type" do
+      context "when all objects in the hash are of the specified type" do
         let(:hash) { {validated_key: {0 => "First", 1 => "Second"}} }
 
         it "creates the object" do
