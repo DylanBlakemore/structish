@@ -71,9 +71,10 @@ module Structish
       def define_accessor_methods(constructor)
         self.class.attributes.each do |attribute|
           method_name = attribute[:alias_to] ? attribute[:alias_to].to_s : attribute[:key].to_s
-          next if method_name.numerical?
-          define_singleton_method(method_name) do
-            attribute[:proc] ? attribute[:proc].call(self[attribute[:key]]) : self[attribute[:key]]
+          if method_name.is_a?(String) || method_name.is_a?(Symbol)
+            define_singleton_method(method_name) do
+              attribute[:proc] ? attribute[:proc].call(self[attribute[:key]]) : self[attribute[:key]]
+            end
           end
         end
       end
