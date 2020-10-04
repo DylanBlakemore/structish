@@ -9,5 +9,10 @@ module Structish
       super(constructor)
     end
 
+    def <<(entry)
+      super(entry)
+      validate_structish(self)
+    end
+
   end
 end

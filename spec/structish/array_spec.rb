@@ -11,6 +11,23 @@ describe Structish::Array do
   let(:array_object) { array_klass.new(array) }
   let(:array) { [] }
 
+  let(:array_klass_validate_all) do
+    stub_const("ValidateAllClass", Class.new(Structish::Array))
+    ValidateAllClass.class_eval do
+      validate_all Float
+    end
+    ValidateAllClass
+  end
+
+  describe "#<<" do
+    it "reruns the validations" do
+      array_object = array_klass_validate_all.new([0.0])
+      # array_object << 5.0
+      # expect(array_object).to match([0.0, 5.0])
+      expect { array_object << "foo" }.to raise_error
+    end
+  end
+
   describe "delegations" do
     context "when a function is delegated to an attribute" do
       let(:array_klass) do

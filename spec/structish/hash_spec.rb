@@ -39,6 +39,32 @@ describe Structish::Hash do
     end
   end
 
+  describe "#merge!" do
+    it "updates the hash and runs the validations" do
+      structish_object = hash_klass.new(validated_key: 1)
+      structish_object.merge!(unvalidated_key: 2)
+      expect(structish_object).to match({validated_key: 1, unvalidated_key: 2})
+      expect { structish_object.merge!(validated_key: nil) }.to raise_error(Structish::ValidationError, "Required value validated_key not present")
+    end
+  end
+
+  describe "#except" do
+    it "returns an instance of the structish class" do
+      expect(hash_klass.new(validated_key: 1, unvalidated_key: 2).except(:unvalidated_key)).to be_a(SimpleStructishChild)
+      expect(hash_klass.new(validated_key: 1, unvalidated_key: 2).except(:unvalidated_key)).to match({validated_key: 1})
+      expect { hash_klass.new(validated_key: 1, unvalidated_key: 2).except(:validated_key) }.to raise_error(Structish::ValidationError, "Required value validated_key not present")
+    end
+  end
+
+  describe "#except!" do
+    it "updates the hash and runs the validations" do
+      structish_object = hash_klass.new(validated_key: 1, unvalidated_key: 2)
+      structish_object.except!(:unvalidated_key)
+      expect(structish_object).to match({validated_key: 1})
+      expect { structish_object.except!(:validated_key) }.to raise_error(Structish::ValidationError, "Required value validated_key not present")
+    end
+  end
+
   describe "value reassignment" do
     let(:hash_klass) do
       stub_const("SimpleStructishChild", Class.new(Structish::Hash))

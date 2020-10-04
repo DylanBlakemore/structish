@@ -94,7 +94,7 @@ module Structish
       end
 
       def global_attributes_for(constructor)
-        @global_attributes ||= begin
+        global_attributes_hash[constructor] = begin
           constructor_keys = constructor.keys
           self.class.global_validations.each_with_object([]) do |validation, arr|
             constructor_keys.each { |key| arr << validation.merge(key: key) }
@@ -136,6 +136,11 @@ module Structish
       def []=(key, value)
         super(key, value)
         validate_structish(self)
+      end
+
+
+      def global_attributes_hash
+        @global_attributes_hash ||= {}
       end
 
     end
