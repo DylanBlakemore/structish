@@ -4,11 +4,9 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 
 gemspec
 
-gem 'activesupport', '~> 4.0'
-
 group :test do
   gem "rspec"
-  gem "simplecov"
+  gem "simplecov", :require => false
 end
 
 group :test, :development do
