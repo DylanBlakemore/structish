@@ -22,8 +22,8 @@ describe Structish::Array do
   describe "#<<" do
     it "reruns the validations" do
       array_object = array_klass_validate_all.new([0.0])
-      # array_object << 5.0
-      # expect(array_object).to match([0.0, 5.0])
+      array_object << 5.0
+      expect(array_object).to match([0.0, 5.0])
       expect { array_object << "foo" }.to raise_error
     end
   end

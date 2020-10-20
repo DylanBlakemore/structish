@@ -12,6 +12,33 @@ describe Structish::Hash do
   let(:hash_object) { hash_klass.new(hash) }
   let(:hash) { {} }
 
+  describe "inheritance" do
+    let(:parent_hash_klass) do
+      stub_const("SimpleStructishParent", Class.new(Structish::Hash))
+      SimpleStructishParent.class_eval do
+        validate :validated_key
+      end
+      SimpleStructishParent
+    end
+
+    let(:child_hash_klass) do
+      stub_const("SimpleStructishChildChild", Class.new(parent_hash_klass))
+      SimpleStructishChildChild.class_eval do
+        validate :another_validated_key, Float
+      end
+      SimpleStructishChildChild
+    end
+
+    context "when one structish implementation inherits from another" do
+      let(:hash_object) { child_hash_klass.new(validated_key: 0, another_validated_key: 1.0) }
+
+      it "inherits the validation methods from the parent class" do
+        expect(hash_object.validated_key).to eq(0)
+        expect(hash_object.another_validated_key).to eq(1.0)
+      end
+    end
+  end
+
   describe "delegations" do
     context "when a function is delegated to an attribute" do
       let(:hash_klass) do

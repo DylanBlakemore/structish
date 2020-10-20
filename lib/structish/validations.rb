@@ -147,8 +147,8 @@ module Structish
 
     module ClassMethods
 
-      def delegations
-        @delegations ||= []
+      def structish?
+        true
       end
 
       def delegate(function, object)
@@ -161,10 +161,6 @@ module Structish
 
       def restrict_attributes
         @restrict_attributes = true
-      end
-
-      def restrict?
-        @restrict_attributes
       end
 
       def validate(key, klass = nil, kwargs = {}, &block)
@@ -185,19 +181,31 @@ module Structish
       end
 
       def global_validations
-        @global_validations ||= []
+        @global_validations ||= superclass_property(:global_validations) || []
       end
 
       def required_attributes
-        @required_attributes ||= []
+        @required_attributes ||= superclass_property(:required_attributes) || []
       end
   
       def optional_attributes
-        @optional_attributes ||= []
+        @optional_attributes ||= superclass_property(:optional_attributes) || []
       end
   
       def attributes
         required_attributes + optional_attributes
+      end
+
+      def delegations
+        @delegations ||= superclass_property(:delegations) || []
+      end
+
+      def restrict?
+        @restrict_attributes || superclass_property(:restrict?)
+      end
+
+      def superclass_property(property)
+        self.superclass.send(property).presence if self.superclass.respond_to?(:structish?) && self.superclass.structish?
       end
 
     end
