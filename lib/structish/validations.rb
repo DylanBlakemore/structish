@@ -69,7 +69,7 @@ module Structish
       end
   
       def define_accessor_methods(constructor)
-        self.class.attributes.each do |attribute|
+        validations.each do |attribute|
           method_name = attribute[:alias_to] ? attribute[:alias_to].to_s : attribute[:key].to_s
           if method_name.is_a?(String) || method_name.is_a?(Symbol)
             define_singleton_method(method_name) do
@@ -80,7 +80,7 @@ module Structish
       end
   
       def validate_constructor(constructor)
-        (self.class.attributes + global_attributes_for(constructor)).each do |attribute|
+        (validations + global_attributes_for(constructor)).each do |attribute|
           value = constructor[attribute[:key]]
           if attribute[:optional] && value.nil?
             true
@@ -96,7 +96,7 @@ module Structish
       def global_attributes_for(constructor)
         global_attributes_hash[constructor] = begin
           constructor_keys = constructor.keys
-          self.class.global_validations.each_with_object([]) do |validation, arr|
+          global_validations.each_with_object([]) do |validation, arr|
             constructor_keys.each { |key| arr << validation.merge(key: key) }
           end
         end
@@ -138,9 +138,28 @@ module Structish
         validate_structish(self)
       end
 
-
       def global_attributes_hash
         @global_attributes_hash ||= {}
+      end
+
+      def validations
+        @validations ||= self.class.attributes + parent_attributes(self.class)
+      end
+
+      def global_validations
+        @global_validations ||= self.class.global_validations + parent_global_validations(self.class)
+      end
+
+      def parent_attributes(klass)
+        if klass.superclass.respond_to?(:structish?) && klass.superclass.structish?
+          klass.superclass.attributes + parent_attributes(klass.superclass)
+        end || []
+      end
+
+      def parent_global_validations(klass)
+        if klass.superclass.respond_to?(:structish?) && klass.superclass.structish?
+          klass.superclass.global_validations + parent_global_validations(klass.superclass)
+        end || []
       end
 
     end
@@ -181,15 +200,15 @@ module Structish
       end
 
       def global_validations
-        @global_validations ||= superclass_property(:global_validations) || []
+        @global_validations ||= []
       end
 
       def required_attributes
-        @required_attributes ||= superclass_property(:required_attributes) || []
+        @required_attributes ||= []
       end
   
       def optional_attributes
-        @optional_attributes ||= superclass_property(:optional_attributes) || []
+        @optional_attributes ||= []
       end
   
       def attributes
@@ -197,15 +216,11 @@ module Structish
       end
 
       def delegations
-        @delegations ||= superclass_property(:delegations) || []
+        @delegations ||= []
       end
 
       def restrict?
-        @restrict_attributes || superclass_property(:restrict?)
-      end
-
-      def superclass_property(property)
-        self.superclass.send(property).presence if self.superclass.respond_to?(:structish?) && self.superclass.structish?
+        @restrict_attributes
       end
 
     end
