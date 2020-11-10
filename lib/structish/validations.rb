@@ -70,11 +70,9 @@ module Structish
   
       def define_accessor_methods(constructor)
         validations.each do |attribute|
-          method_name = attribute[:alias_to] ? attribute[:alias_to].to_s : attribute[:key].to_s
-          if method_name.is_a?(String) || method_name.is_a?(Symbol)
-            define_singleton_method(method_name) do
-              attribute[:proc] ? attribute[:proc].call(self[attribute[:key]]) : self[attribute[:key]]
-            end
+          if accessor = attribute[:accessor]
+            value = attribute[:proc] ? attribute[:proc].call(constructor[attribute[:key]]) : constructor[attribute[:key]]
+            instance_variable_set "@#{accessor}", value
           end
         end
       end
@@ -183,8 +181,11 @@ module Structish
       end
 
       def validate(key, klass = nil, kwargs = {}, &block)
+        accessor_name = kwargs[:alias_to] ? kwargs[:alias_to] : key
+        accessor = accessor_name.to_s if (accessor_name.is_a?(String) || accessor_name.is_a?(Symbol))
+        attr_reader(accessor) if accessor
         attribute_array = kwargs[:optional] ? optional_attributes : required_attributes
-        attribute_array << attribute_hash(key, klass, kwargs, block)
+        attribute_array << attribute_hash(key, klass, kwargs.merge(accessor: accessor), block)
       end
 
       def validate_all(klass = nil, kwargs = {}, &block)
@@ -195,7 +196,7 @@ module Structish
         {
           key: key,
           klass: klass,
-          proc: block
+          proc: block,
         }.merge(kwargs.except(:key, :klass, :proc))
       end
 
