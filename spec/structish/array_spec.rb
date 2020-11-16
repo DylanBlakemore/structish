@@ -46,6 +46,24 @@ describe Structish::Array do
         expect(object.upcase).to eq("HELLO")
       end
     end
+
+    context "when a delegation is assigned to an optional attribute and the attribute is nil" do
+      let(:array_klass) do
+        stub_const("SimpleStructishChild", Class.new(Structish::Array))
+        SimpleStructishChild.class_eval do
+          validate 0, String, alias_to: :validated_key, optional: true
+          delegate :downcase, :validated_key
+          delegate :upcase, :validated_key
+        end
+        SimpleStructishChild
+      end
+
+      it "returns nil" do
+        object = array_klass.new([])
+        expect(object.downcase).to be_nil
+        expect(object.upcase).to be_nil
+      end
+    end
   end
 
   describe "value reassignment" do

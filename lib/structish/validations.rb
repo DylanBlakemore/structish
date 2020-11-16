@@ -19,7 +19,7 @@ module Structish
 
       def define_delegated_methods
         self.class.delegations.each do |function, object|
-          define_singleton_method(function.to_s) { self.send(object.to_sym).send(function.to_sym) }
+          define_singleton_method(function.to_s) { self.send(object.to_sym)&.send(function.to_sym) }
         end
       end
 
