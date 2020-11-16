@@ -36,6 +36,40 @@ describe Structish::Hash do
         expect(hash_object.validated_key).to eq(0)
         expect(hash_object.another_validated_key).to eq(1.0)
       end
+
+      context "with default options" do
+        let(:parent_hash_klass) do
+          stub_const("SimpleStructishParent", Class.new(Structish::Hash))
+          SimpleStructishParent.class_eval do
+            validate :validated_key, Structish::Any, optional: true, default: 5.0
+          end
+          SimpleStructishParent
+        end
+
+        let(:hash_object) { child_hash_klass.new(another_validated_key: 1.0) }
+
+        it "applies the defaults correctly" do
+          expect(hash_object.validated_key).to eq(5.0)
+          expect(hash_object.another_validated_key).to eq(1.0)
+        end
+      end
+
+      context "with casting" do
+        let(:parent_hash_klass) do
+          stub_const("SimpleStructishParent", Class.new(Structish::Hash))
+          SimpleStructishParent.class_eval do
+            validate :validated_key, Float, cast: true
+          end
+          SimpleStructishParent
+        end
+
+        let(:hash_object) { child_hash_klass.new(validated_key: "10", another_validated_key: 1.0) }
+
+        it "casts the values correctly" do
+          expect(hash_object.validated_key).to eq(10.0)
+          expect(hash_object.another_validated_key).to eq(1.0)
+        end
+      end
     end
   end
 

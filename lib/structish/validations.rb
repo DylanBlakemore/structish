@@ -25,14 +25,14 @@ module Structish
 
       def validate_key_restriction(constructor)
         if self.class.restrict?
-          allowed_keys = self.class.attributes.map { |attribute| attribute[:key] }
+          allowed_keys = validations.map { |attribute| attribute[:key] }
           valid = (constructor.keys - allowed_keys).empty?
           raise(Structish::ValidationError, "Keys are restricted to #{allowed_keys.join(", ")}") unless valid
         end
       end
 
       def apply_defaults(constructor)
-        self.class.optional_attributes.each do |attribute|
+        validations.select { |v| v[:optional] }.each do |attribute|
           key = attribute[:key]
           default_value = if attribute[:default].is_a?(::Array) && attribute[:default].first == :other_attribute
             constructor[attribute[:default][1]]
@@ -44,7 +44,7 @@ module Structish
       end
 
       def cast_values(constructor)
-        (self.class.attributes + global_attributes_for(constructor)).each do |attribute|
+        (validations + global_attributes_for(constructor)).each do |attribute|
           key = attribute[:key]
           if attribute[:cast] && constructor[key]
             if attribute[:klass] == ::Array && attribute[:of]
