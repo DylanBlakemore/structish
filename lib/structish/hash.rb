@@ -33,6 +33,10 @@ module Structish
       validate_structish(self)
     end
 
+    def compact
+      self.class.new(to_h.compact)
+    end
+
     protected
 
     def self.symbolize(sym)

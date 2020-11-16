@@ -144,6 +144,15 @@ describe Structish::Hash do
     end
   end
 
+  describe "#compact" do
+    it "updates the hash and runs the validations" do
+      structish_object = hash_klass.new(validated_key: 1, unvalidated_key: 2, something_else: nil)
+      expect(structish_object.keys).to include(:something_else)
+      expect(structish_object.compact.keys).not_to include(:something_else)
+      expect(structish_object.compact).to be_a(hash_klass)
+    end
+  end
+
   describe "value reassignment" do
     let(:hash_klass) do
       stub_const("SimpleStructishChild", Class.new(Structish::Hash))
