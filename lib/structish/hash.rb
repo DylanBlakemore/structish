@@ -7,7 +7,7 @@ module Structish
       raise(ArgumentError, "Only hash-like objects can be used as constructors for Structish::Hash") unless raw_constructor.respond_to?(:to_hash)
 
       constructor = self.class.symbolize? ? raw_constructor.symbolize_keys : raw_constructor
-      hash = constructor.to_hash
+      hash = constructor.to_h
       validate_structish(hash)
       super()
       update(hash)
