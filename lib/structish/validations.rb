@@ -86,7 +86,7 @@ module Structish
             validate_presence(attribute, value)
             validate_class(attribute, value)
             validate_one_of(attribute, value)
-            validate_custom(attribute, value)
+            validate_custom(attribute, value, constructor)
           end
         end
       end
@@ -126,8 +126,8 @@ module Structish
         raise(Structish::ValidationError, "Value not one of #{attribute[:one_of].join(", ")}") unless valid
       end
   
-      def validate_custom(attribute, value)
-        valid = attribute[:validation] ? attribute[:validation].new(value, attribute).validate : true
+      def validate_custom(attribute, value, constructor)
+        valid = attribute[:validation] ? attribute[:validation].new(value, attribute, constructor).validate : true
         raise(Structish::ValidationError, "Custom validation #{attribute[:validation].to_s} not met") unless valid
       end
 

@@ -489,6 +489,29 @@ describe Structish::Hash do
         expect(hash_klass.new(validated_key: 1).validated_key).to eq(1)
       end
     end
+
+    context "when other entries in the constructor are needed for validation" do
+      let(:hash_klass) do
+        stub_const("LessThanLargestValidation", Class.new(Structish::Validation))
+        LessThanLargestValidation.class_eval do
+          def validate
+            value < constructor[:largest]
+          end
+        end
+
+        stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+        SimpleStructishChild.class_eval do
+          validate :smallest, Structish::Number, validation: LessThanLargestValidation
+          validate :largest, Structish::Number
+        end
+        SimpleStructishChild
+      end
+
+      it "passes the constructor into the validation instance" do
+        expect(hash_klass.new(largest: 10, smallest: 5).smallest).to eq(5)
+        expect { hash_klass.new(largest: 10, smallest: 20) }.to raise_error(Structish::ValidationError, "Custom validation LessThanLargestValidation not met")
+      end
+    end
   end
 
   describe ".validate_all" do

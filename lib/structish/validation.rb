@@ -1,11 +1,12 @@
 module Structish
   class Validation
 
-    attr_reader :value, :conditions
+    attr_reader :value, :conditions, :constructor
 
-    def initialize(value, conditions)
+    def initialize(value, conditions, constructor)
       @value = value
       @conditions = conditions
+      @constructor = constructor
     end
 
     def validate
