@@ -87,7 +87,7 @@ describe Structish::Array do
 
     context "when the new value is invalid" do
       it "raises an error" do
-        expect { array_object[0] = "5.0" }.to raise_error(Structish::ValidationError, "Class mismatch for 0 -> String. Should be a Float")
+        expect { array_object[0] = "5.0" }.to raise_error(Structish::ValidationError, "Class mismatch for 0 -> String. Should be a Float in class SimpleStructishChild")
       end
     end
   end
@@ -144,7 +144,7 @@ describe Structish::Array do
 
       context "when extra keys are present" do
         it "raises an appropriate error" do
-          expect { array_klass.new([1.0, 2.0, 3.0]) }.to raise_error(Structish::ValidationError, "Keys are restricted to 0, 1")
+          expect { array_klass.new([1.0, 2.0, 3.0]) }.to raise_error(Structish::ValidationError, "Keys are restricted to 0, 1 in class SimpleStructishChild")
         end
       end
     end
@@ -206,7 +206,7 @@ describe Structish::Array do
       end
 
       it "raises an error" do
-        expect { array_klass.new([]) }.to raise_error(Structish::ValidationError, "Required value 0 not present")
+        expect { array_klass.new([]) }.to raise_error(Structish::ValidationError, "Required value 0 not present in class SimpleStructishChild")
       end
     end
   end
@@ -317,7 +317,7 @@ describe Structish::Array do
       it "allows TrueClass and FalseClass data types" do
         expect(array_klass.new([true]).validated_key).to eq(true)
         expect(array_klass.new([false]).validated_key).to eq(false)
-        expect { array_klass.new([0.0]) }.to raise_error("Class mismatch for 0 -> Float. Should be a TrueClass, FalseClass")
+        expect { array_klass.new([0.0]) }.to raise_error("Class mismatch for 0 -> Float. Should be a TrueClass, FalseClass in class SimpleStructishChild")
       end
     end
 
@@ -333,7 +333,7 @@ describe Structish::Array do
       it "allows float and integer data types" do
         expect(array_klass.new([0.0]).validated_key).to eq(0.0)
         expect(array_klass.new([1]).validated_key).to eq(1)
-        expect { array_klass.new(["hello"]) }.to raise_error("Class mismatch for 0 -> String. Should be a Integer, Float")
+        expect { array_klass.new(["hello"]) }.to raise_error("Class mismatch for 0 -> String. Should be a Integer, Float in class SimpleStructishChild")
       end
     end
 
@@ -353,7 +353,7 @@ describe Structish::Array do
         expect(array_klass.new([true]).validated_key).to eq(true)
         expect(array_klass.new(["hello"]).validated_key).to eq("hello")
         expect(array_klass.new([:hello]).validated_key).to eq(:hello)
-        expect { array_klass.new([[]]) }.to raise_error("Class mismatch for 0 -> Array. Should be a String, Float, Integer, TrueClass, FalseClass, Symbol")
+        expect { array_klass.new([[]]) }.to raise_error("Class mismatch for 0 -> Array. Should be a String, Float, Integer, TrueClass, FalseClass, Symbol in class SimpleStructishChild")
       end
     end
   end
@@ -376,7 +376,7 @@ describe Structish::Array do
 
     context "when the value satisifies the validation" do
       it "raises an appropriate error" do
-        expect { array_klass.new([-1]) }.to raise_error(Structish::ValidationError, "Custom validation PositiveValidation not met")
+        expect { array_klass.new([-1]) }.to raise_error(Structish::ValidationError, "Custom validation PositiveValidation not met in class SimpleStructishChild")
       end
     end
 
@@ -411,7 +411,7 @@ describe Structish::Array do
       let(:array) { [1.0, "two"] }
 
       it "raises an appropriate error" do
-        expect { instance }.to raise_error(Structish::ValidationError, "Class mismatch for 1 -> String. Should be a Integer, Float")
+        expect { instance }.to raise_error(Structish::ValidationError, "Class mismatch for 1 -> String. Should be a Integer, Float in class SimpleStructishChild")
       end
     end
   end
@@ -436,7 +436,7 @@ describe Structish::Array do
         let(:array) { [nil, "Not a validated key"] }
 
         it "raises an appropriate validation error" do
-          expect { array_object }.to raise_error(Structish::ValidationError, "Required value 0 not present")
+          expect { array_object }.to raise_error(Structish::ValidationError, "Required value 0 not present in class SimpleStructishChild")
         end
       end
 
@@ -463,7 +463,7 @@ describe Structish::Array do
         let(:array) { ["hello"] }
 
         it "raises an appropriate error" do
-          expect { array_object }.to raise_error(Structish::ValidationError, "Class mismatch for 0. All values should be of type String")
+          expect { array_object }.to raise_error(Structish::ValidationError, "Class mismatch for 0. All values should be of type String in class SimpleStructishChild")
         end
       end
 
@@ -471,7 +471,7 @@ describe Structish::Array do
         let(:array) { [["hello", 0.0]] }
 
         it "raises an appropriate error" do
-          expect { array_object }.to raise_error(Structish::ValidationError, "Class mismatch for 0. All values should be of type String")
+          expect { array_object }.to raise_error(Structish::ValidationError, "Class mismatch for 0. All values should be of type String in class SimpleStructishChild")
         end
       end
 
@@ -497,7 +497,7 @@ describe Structish::Array do
         let(:array) { ["hello"] }
 
         it "raises an appropriate error" do
-          expect { array_object }.to raise_error(Structish::ValidationError, "Class mismatch for 0. All values should be of type String")
+          expect { array_object }.to raise_error(Structish::ValidationError, "Class mismatch for 0. All values should be of type String in class SimpleStructishChild")
         end
       end
 
@@ -505,7 +505,7 @@ describe Structish::Array do
         let(:array) { [{0 => "First", 1 => 1.0}] }
 
         it "raises an appropriate error" do
-          expect { array_object }.to raise_error(Structish::ValidationError, "Class mismatch for 0. All values should be of type String")
+          expect { array_object }.to raise_error(Structish::ValidationError, "Class mismatch for 0. All values should be of type String in class SimpleStructishChild")
         end
       end
 
@@ -529,7 +529,7 @@ describe Structish::Array do
 
       context "when the value class is not a child of the specified class" do
         it "raises an appropriate validation error" do
-          expect { array_klass.new(["hello"]) }.to raise_error(Structish::ValidationError, "Class mismatch for 0 -> String. Should be a Hash")
+          expect { array_klass.new(["hello"]) }.to raise_error(Structish::ValidationError, "Class mismatch for 0 -> String. Should be a Hash in class SimpleStructishChild")
         end
       end
 
@@ -565,7 +565,7 @@ describe Structish::Array do
 
         context "when the value class does not match one of the classes" do
           it "raises an appropriate validation error" do
-            expect { array_klass.new([:hello]) }.to raise_error(Structish::ValidationError, "Class mismatch for 0 -> Symbol. Should be a String, Float")
+            expect { array_klass.new([:hello]) }.to raise_error(Structish::ValidationError, "Class mismatch for 0 -> Symbol. Should be a String, Float in class SimpleStructishChild")
           end
         end
       end

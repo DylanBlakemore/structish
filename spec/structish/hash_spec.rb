@@ -114,7 +114,7 @@ describe Structish::Hash do
   describe "#merge" do
     it "returns an instance of the structish class" do
       expect(hash_klass.new(validated_key: 1).merge(unvalidated_key: 2)).to be_a(SimpleStructishChild)
-      expect { hash_klass.new(validated_key: 1).merge(validated_key: nil) }.to raise_error(Structish::ValidationError, "Required value validated_key not present")
+      expect { hash_klass.new(validated_key: 1).merge(validated_key: nil) }.to raise_error(Structish::ValidationError, "Required value validated_key not present in class SimpleStructishChild")
     end
   end
 
@@ -123,7 +123,7 @@ describe Structish::Hash do
       structish_object = hash_klass.new(validated_key: 1)
       structish_object.merge!(unvalidated_key: 2)
       expect(structish_object).to match({validated_key: 1, unvalidated_key: 2})
-      expect { structish_object.merge!(validated_key: nil) }.to raise_error(Structish::ValidationError, "Required value validated_key not present")
+      expect { structish_object.merge!(validated_key: nil) }.to raise_error(Structish::ValidationError, "Required value validated_key not present in class SimpleStructishChild")
     end
   end
 
@@ -131,7 +131,7 @@ describe Structish::Hash do
     it "returns an instance of the structish class" do
       expect(hash_klass.new(validated_key: 1, unvalidated_key: 2).except(:unvalidated_key)).to be_a(SimpleStructishChild)
       expect(hash_klass.new(validated_key: 1, unvalidated_key: 2).except(:unvalidated_key)).to match({validated_key: 1})
-      expect { hash_klass.new(validated_key: 1, unvalidated_key: 2).except(:validated_key) }.to raise_error(Structish::ValidationError, "Required value validated_key not present")
+      expect { hash_klass.new(validated_key: 1, unvalidated_key: 2).except(:validated_key) }.to raise_error(Structish::ValidationError, "Required value validated_key not present in class SimpleStructishChild")
     end
   end
 
@@ -140,7 +140,7 @@ describe Structish::Hash do
       structish_object = hash_klass.new(validated_key: 1, unvalidated_key: 2)
       structish_object.except!(:unvalidated_key)
       expect(structish_object).to match({validated_key: 1})
-      expect { structish_object.except!(:validated_key) }.to raise_error(Structish::ValidationError, "Required value validated_key not present")
+      expect { structish_object.except!(:validated_key) }.to raise_error(Structish::ValidationError, "Required value validated_key not present in class SimpleStructishChild")
     end
   end
 
@@ -174,7 +174,7 @@ describe Structish::Hash do
 
     context "when the new value is invalid" do
       it "raises an error" do
-        expect { hash_object[:validated_key] = "5.0" }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key -> String. Should be a Float")
+        expect { hash_object[:validated_key] = "5.0" }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key -> String. Should be a Float in class SimpleStructishChild")
       end
     end
   end
@@ -248,7 +248,7 @@ describe Structish::Hash do
 
       context "when extra keys are present" do
         it "raises an appropriate error" do
-          expect { hash_klass.new({validated_key: 1.0, unreal_key: 3.0}) }.to raise_error(Structish::ValidationError, "Keys are restricted to validated_key, other_validated_key")
+          expect { hash_klass.new({validated_key: 1.0, unreal_key: 3.0}) }.to raise_error(Structish::ValidationError, "Keys are restricted to validated_key, other_validated_key in class SimpleStructishChild")
         end
       end
     end
@@ -310,7 +310,7 @@ describe Structish::Hash do
       end
 
       it "raises an error" do
-        expect { hash_klass.new({}) }.to raise_error(Structish::ValidationError, "Required value validated_key not present")
+        expect { hash_klass.new({}) }.to raise_error(Structish::ValidationError, "Required value validated_key not present in class SimpleStructishChild")
       end
     end
   end
@@ -421,7 +421,7 @@ describe Structish::Hash do
       it "allows TrueClass and FalseClass data types" do
         expect(hash_klass.new(validated_key: true).validated_key).to eq(true)
         expect(hash_klass.new(validated_key: false).validated_key).to eq(false)
-        expect { hash_klass.new(validated_key: 0.0) }.to raise_error("Class mismatch for validated_key -> Float. Should be a TrueClass, FalseClass")
+        expect { hash_klass.new(validated_key: 0.0) }.to raise_error("Class mismatch for validated_key -> Float. Should be a TrueClass, FalseClass in class SimpleStructishChild")
       end
     end
 
@@ -437,7 +437,7 @@ describe Structish::Hash do
       it "allows float and integer data types" do
         expect(hash_klass.new(validated_key: 0.0).validated_key).to eq(0.0)
         expect(hash_klass.new(validated_key: 1).validated_key).to eq(1)
-        expect { hash_klass.new(validated_key: "hello") }.to raise_error("Class mismatch for validated_key -> String. Should be a Integer, Float")
+        expect { hash_klass.new(validated_key: "hello") }.to raise_error("Class mismatch for validated_key -> String. Should be a Integer, Float in class SimpleStructishChild")
       end
     end
 
@@ -457,7 +457,7 @@ describe Structish::Hash do
         expect(hash_klass.new(validated_key: true).validated_key).to eq(true)
         expect(hash_klass.new(validated_key: "hello").validated_key).to eq("hello")
         expect(hash_klass.new(validated_key: :hello).validated_key).to eq(:hello)
-        expect { hash_klass.new(validated_key: {}) }.to raise_error("Class mismatch for validated_key -> Hash. Should be a String, Float, Integer, TrueClass, FalseClass, Symbol")
+        expect { hash_klass.new(validated_key: {}) }.to raise_error("Class mismatch for validated_key -> Hash. Should be a String, Float, Integer, TrueClass, FalseClass, Symbol in class SimpleStructishChild")
       end
     end
   end
@@ -480,7 +480,7 @@ describe Structish::Hash do
 
     context "when the value satisifies the validation" do
       it "raises an appropriate error" do
-        expect { hash_klass.new(validated_key: -1) }.to raise_error(Structish::ValidationError, "Custom validation PositiveValidation not met")
+        expect { hash_klass.new(validated_key: -1) }.to raise_error(Structish::ValidationError, "Custom validation PositiveValidation not met in class SimpleStructishChild")
       end
     end
 
@@ -509,7 +509,7 @@ describe Structish::Hash do
 
       it "passes the constructor into the validation instance" do
         expect(hash_klass.new(largest: 10, smallest: 5).smallest).to eq(5)
-        expect { hash_klass.new(largest: 10, smallest: 20) }.to raise_error(Structish::ValidationError, "Custom validation LessThanLargestValidation not met")
+        expect { hash_klass.new(largest: 10, smallest: 20) }.to raise_error(Structish::ValidationError, "Custom validation LessThanLargestValidation not met in class SimpleStructishChild")
       end
     end
   end
@@ -538,7 +538,7 @@ describe Structish::Hash do
       let(:hash) { {one: 1.0, two: "two"} }
 
       it "raises an appropriate error" do
-        expect { instance }.to raise_error(Structish::ValidationError, "Class mismatch for two -> String. Should be a Integer, Float")
+        expect { instance }.to raise_error(Structish::ValidationError, "Class mismatch for two -> String. Should be a Integer, Float in class SimpleStructishChild")
       end
     end
   end
@@ -563,7 +563,7 @@ describe Structish::Hash do
         let(:hash) { {validated_key: nil, non_validated_key: "Not a validated key"} }
 
         it "raises an appropriate validation error" do
-          expect { hash_object }.to raise_error(Structish::ValidationError, "Required value validated_key not present")
+          expect { hash_object }.to raise_error(Structish::ValidationError, "Required value validated_key not present in class SimpleStructishChild")
         end
       end
 
@@ -590,7 +590,7 @@ describe Structish::Hash do
         let(:hash) { {validated_key: "hello"} }
 
         it "raises an appropriate error" do
-          expect { hash_object }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key. All values should be of type String")
+          expect { hash_object }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key. All values should be of type String in class SimpleStructishChild")
         end
       end
 
@@ -598,7 +598,7 @@ describe Structish::Hash do
         let(:hash) { {validated_key: ["hello", 0.0]} }
 
         it "raises an appropriate error" do
-          expect { hash_object }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key. All values should be of type String")
+          expect { hash_object }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key. All values should be of type String in class SimpleStructishChild")
         end
       end
 
@@ -624,7 +624,7 @@ describe Structish::Hash do
         let(:hash) { {validated_key: "hello"} }
 
         it "raises an appropriate error" do
-          expect { hash_object }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key. All values should be of type String")
+          expect { hash_object }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key. All values should be of type String in class SimpleStructishChild")
         end
       end
 
@@ -632,7 +632,7 @@ describe Structish::Hash do
         let(:hash) { {validated_key: {0 => "First", 1 => 1.0}} }
 
         it "raises an appropriate error" do
-          expect { hash_object }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key. All values should be of type String")
+          expect { hash_object }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key. All values should be of type String in class SimpleStructishChild")
         end
       end
 
@@ -656,7 +656,7 @@ describe Structish::Hash do
 
       context "when the value class is not a child of the specified class" do
         it "raises an appropriate validation error" do
-          expect { hash_klass.new(validated_key: "hello") }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key -> String. Should be a Hash")
+          expect { hash_klass.new(validated_key: "hello") }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key -> String. Should be a Hash in class SimpleStructishChild")
         end
       end
 
@@ -692,7 +692,7 @@ describe Structish::Hash do
 
         context "when the value class does not match one of the classes" do
           it "raises an appropriate validation error" do
-            expect { hash_klass.new(validated_key: :hello) }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key -> Symbol. Should be a String, Float")
+            expect { hash_klass.new(validated_key: :hello) }.to raise_error(Structish::ValidationError, "Class mismatch for validated_key -> Symbol. Should be a String, Float in class SimpleStructishChild")
           end
         end
       end

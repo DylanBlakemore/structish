@@ -27,7 +27,7 @@ module Structish
         if self.class.restrict?
           allowed_keys = validations.map { |attribute| attribute[:key] }
           valid = (constructor.keys - allowed_keys).empty?
-          raise(Structish::ValidationError, "Keys are restricted to #{allowed_keys.join(", ")}", caller) unless valid
+          raise(Structish::ValidationError.new("Keys are restricted to #{allowed_keys.join(", ")}", self.class)) unless valid
         end
       end
 
@@ -101,7 +101,7 @@ module Structish
       end
 
       def validate_presence(attribute, value)
-        raise(Structish::ValidationError, "Required value #{attribute[:key]} not present", caller) unless !value.nil?
+        raise(Structish::ValidationError.new("Required value #{attribute[:key]} not present", self.class)) unless !value.nil?
       end
   
       def validate_class(attribute, value)
@@ -113,22 +113,22 @@ module Structish
           elsif attribute[:klass] <= ::Hash
             value.class <= ::Hash && value.values.all? { |v| v.class <= attribute[:of] }
           end
-          raise(Structish::ValidationError, "Class mismatch for #{attribute[:key]}. All values should be of type #{attribute[:of].to_s}", caller) unless valid
+          raise(Structish::ValidationError.new("Class mismatch for #{attribute[:key]}. All values should be of type #{attribute[:of].to_s}", self.class)) unless valid
         else
           valid_klasses = [attribute[:klass]].flatten.compact
           valid = valid_klasses.any? { |klass| value.class <= klass }
-          raise(Structish::ValidationError, "Class mismatch for #{attribute[:key]} -> #{value.class}. Should be a #{valid_klasses.join(", ")}", caller) unless valid
+          raise(Structish::ValidationError.new("Class mismatch for #{attribute[:key]} -> #{value.class}. Should be a #{valid_klasses.join(", ")}", self.class)) unless valid
         end
       end
 
       def validate_one_of(attribute, value)
         valid = attribute[:one_of] ? attribute[:one_of].include?(value) : true
-        raise(Structish::ValidationError, "Value not one of #{attribute[:one_of].join(", ")}", caller) unless valid
+        raise(Structish::ValidationError.new("Value not one of #{attribute[:one_of].join(", ")}", self.class)) unless valid
       end
   
       def validate_custom(attribute, value, constructor)
         valid = attribute[:validation] ? attribute[:validation].new(value, attribute, constructor).validate : true
-        raise(Structish::ValidationError, "Custom validation #{attribute[:validation].to_s} not met", caller) unless valid
+        raise(Structish::ValidationError.new("Custom validation #{attribute[:validation].to_s} not met", self.class)) unless valid
       end
 
       def []=(key, value)
