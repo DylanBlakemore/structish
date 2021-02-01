@@ -717,4 +717,34 @@ describe Structish::Hash do
       end
     end
   end
+
+  describe "attribute_keys" do
+    let(:hash_klass) do
+      stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+      SimpleStructishChild.class_eval do
+        validate :validated_key
+        validate :another_validated_key, Structish::Any, optional: true
+      end
+      SimpleStructishChild
+    end
+
+    it "returns the keys for each of the validated attributes" do
+      expect(hash_klass.attribute_keys).to eq([:validated_key, :another_validated_key])
+    end
+  end
+
+  describe "attribute_values" do
+    let(:hash_klass) do
+      stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+      SimpleStructishChild.class_eval do
+        validate :validated_key
+        validate :another_validated_key, Structish::Any, optional: true
+      end
+      SimpleStructishChild
+    end
+
+    it "excludes non-validated attributes" do
+      expect(hash_klass.new(validated_key: "hello", not_validated: 0).attribute_values).to eq({validated_key: "hello", another_validated_key: nil})
+    end
+  end
 end

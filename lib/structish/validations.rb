@@ -160,9 +160,21 @@ module Structish
         end || []
       end
 
+      def attribute_values
+        if self.class < Array
+          self.to_a.values_at(*self.class.attribute_keys)
+        elsif self.class < Hash
+          self.to_h.slice(*self.class.attribute_keys)
+        end
+      end
+
     end
 
     module ClassMethods
+
+      def attribute_keys
+        attributes.map { |attribute| attribute[:key] }
+      end
 
       def structish?
         true

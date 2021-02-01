@@ -571,4 +571,35 @@ describe Structish::Array do
       end
     end
   end
+
+  describe "attribute_keys" do
+    let(:array_klass) do
+      stub_const("SimpleStructishChild", Class.new(Structish::Array))
+      SimpleStructishChild.class_eval do
+        validate 0
+        validate 1
+        validate 2
+      end
+      SimpleStructishChild
+    end
+
+    it "returns an array with the validated indexes" do
+      expect(array_klass.attribute_keys).to eq([0, 1, 2])
+    end
+  end
+
+  describe "attribute_values" do
+    let(:array_klass) do
+      stub_const("SimpleStructishChild", Class.new(Structish::Array))
+      SimpleStructishChild.class_eval do
+        validate 0
+        validate 1
+      end
+      SimpleStructishChild
+    end
+
+    it "excludes non-validated attributes" do
+      expect(array_klass.new(["hello", "world", "!"]).attribute_values).to eq(["hello", "world"])
+    end
+  end
 end
