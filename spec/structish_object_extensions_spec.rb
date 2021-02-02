@@ -57,45 +57,4 @@ describe ::Array do
     end
   end
 
-  describe "#values" do
-    context "for empty arrays" do
-      it "returns an empty array" do
-        expect([].values).to eq([])
-      end
-    end
-
-    context "for non-empty arrays" do
-      it "returns the values of the array" do
-        expect([5, "foo", {}, 6425].values).to eq([5, "foo", {}, 6425])
-      end
-    end
-
-    context "for objects that inherit from ::Array" do
-      let(:array_klass) do
-        stub_const("ArrayChildKlass", Class.new(::Array))
-        ArrayChildKlass
-      end
-
-      let(:object) { array_klass.new([5, "foo", {}, 6425]) }
-
-      it "returns the array" do
-        expect(object.values).to be_a(Array)
-        expect(object.values).to match(object.to_a)
-      end
-    end
-  end
-
-  describe "#keys" do
-    context "for empty arrays" do
-      it "returns an empty array" do
-        expect([].keys).to eq([])
-      end
-    end
-
-    context "for non-empty arrays" do
-      it "returns an array of the possible integer accessors into the array" do
-        expect([5, "foo", {}, 6425].keys).to eq([0, 1, 2, 3])
-      end
-    end
-  end
 end

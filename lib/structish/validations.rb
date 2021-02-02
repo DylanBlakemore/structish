@@ -26,7 +26,7 @@ module Structish
       def validate_key_restriction(constructor)
         if self.class.restrict?
           allowed_keys = validations.map { |attribute| attribute[:key] }
-          valid = (constructor.keys - allowed_keys).empty?
+          valid = (keys_for(constructor) - allowed_keys).empty?
           raise(Structish::ValidationError.new("Keys are restricted to #{allowed_keys.join(", ")}", self.class)) unless valid
         end
       end
@@ -93,7 +93,7 @@ module Structish
 
       def global_attributes_for(constructor)
         global_attributes_hash[constructor] = begin
-          constructor_keys = constructor.keys
+          constructor_keys = keys_for(constructor)
           global_validations.each_with_object([]) do |validation, arr|
             constructor_keys.each { |key| arr << validation.merge(key: key) }
           end
@@ -165,6 +165,14 @@ module Structish
           self.to_a.values_at(*self.class.attribute_keys)
         elsif self.class < Hash
           self.to_h.slice(*self.class.attribute_keys)
+        end
+      end
+
+      def keys_for(constructor)
+        if constructor.class <= ::Array
+          [*0..constructor.size-1]
+        elsif constructor.class <= ::Hash
+          constructor.keys
         end
       end
 

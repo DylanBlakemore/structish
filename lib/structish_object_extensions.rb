@@ -6,14 +6,6 @@ class ::Hash
 end
 
 class ::Array
-  def values
-    self.to_a
-  end
-
-  def keys
-    [*0..self.size-1]
-  end
-
   def to_structish(structish_klass)
     raise(ArgumentError, "Class is not a child of Structish::Array") unless structish_klass < Structish::Array
     structish_klass.new(self)
