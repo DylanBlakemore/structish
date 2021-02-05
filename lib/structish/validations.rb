@@ -48,6 +48,9 @@ module Structish
           key = attribute[:key]
           if attribute[:cast] && constructor[key]
             if attribute[:klass] == ::Array && attribute[:of]
+              unless constructor[key].class <= ::Array
+                raise(Structish::ValidationError.new("Class mismatch for #{attribute[:key]} -> #{constructor[key].class}. Should be a Array", self.class))
+              end
               constructor[key] = constructor[key].map { |v| cast_single(v, attribute[:of]) }
             else
               constructor[key] = cast_single(constructor[key], attribute[:klass])

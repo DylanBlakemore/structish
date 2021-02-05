@@ -387,6 +387,12 @@ describe Structish::Hash do
         it "casts each element of the array" do
           expect(hash_klass.new(validated_key: ["0.0", 5.0, 9]).validated_key.map(&:class)).to eq([CastClass, CastClass, CastClass])
         end
+
+        context "when the attribute is not an array at all" do
+          it "raises an appropriate error" do
+            expect { hash_klass.new(validated_key: 1) }.to raise_error("Class mismatch for validated_key -> Integer. Should be a Array in class SimpleStructishChild")
+          end
+        end
       end
     end
   end
