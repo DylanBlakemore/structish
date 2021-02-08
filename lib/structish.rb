@@ -1,6 +1,8 @@
 
 require 'active_support/core_ext/hash'
 
+require 'structish/config'
+
 require "structish/version"
 require "structish_object_extensions"
 require "structish/validation_error"

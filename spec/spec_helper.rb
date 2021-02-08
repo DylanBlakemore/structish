@@ -11,3 +11,15 @@ end
 require 'structish'
 
 Bundler.setup
+
+def suppress_log_output
+  allow(STDOUT).to receive(:puts) # this disables puts
+end
+
+RSpec.configure do |config|
+  config.before(:each) do
+    suppress_log_output
+    Structish::Config.config = {}
+    Structish::Config.show_full_trace = nil
+  end
+end
