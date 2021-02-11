@@ -183,6 +183,14 @@ module Structish
 
     module ClassMethods
 
+      def compact(do_compact)
+        @compact = do_compact
+      end
+
+      def compact?
+        @compact
+      end
+
       def attribute_keys
         attributes.map { |attribute| attribute[:key] }
       end

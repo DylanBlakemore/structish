@@ -6,7 +6,11 @@ module Structish
     def initialize(constructor)
       raise(ArgumentError, "Only array-like objects can be used as constructors for Structish::Array") unless constructor.class <= ::Array
       validate_structish(constructor)
-      super(constructor)
+      if self.class.compact?
+        super(constructor.compact)
+      else
+        super(constructor)
+      end
     end
 
     def <<(entry)

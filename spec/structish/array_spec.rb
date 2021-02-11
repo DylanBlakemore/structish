@@ -150,6 +150,23 @@ describe Structish::Array do
     end
   end
 
+  describe ".compact" do
+    let(:array_klass) do
+      stub_const("SimpleStructishChild", Class.new(Structish::Array))
+      SimpleStructishChild.class_eval do
+        validate 0, Float
+        validate 1, Float, optional: true
+
+        compact true
+      end
+      SimpleStructishChild
+    end
+
+    it "compacts the resultant array" do
+      expect(array_klass.new([0.0])).to eq([0.0])
+    end
+  end
+
   describe "defaults" do
     context "when a default is supplied for an optional attribute" do
       let(:array_klass) do

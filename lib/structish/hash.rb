@@ -9,6 +9,7 @@ module Structish
       constructor = self.class.symbolize? ? raw_constructor.symbolize_keys : raw_constructor
       hash = constructor.to_h
       validate_structish(hash)
+      hash = hash.compact if self.class.compact?
       super()
       update(hash)
       self.default = hash.default if hash.default
