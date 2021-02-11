@@ -739,6 +739,23 @@ describe Structish::Hash do
     end
   end
 
+  describe ".compact" do
+    let(:hash_klass) do
+      stub_const("SimpleStructishChild", Class.new(Structish::Hash))
+      SimpleStructishChild.class_eval do
+        validate :required
+        validate :optional, Structish::Any, optional: true
+
+        compact true
+      end
+      SimpleStructishChild
+    end
+
+    it "compacts the resultant hash" do
+      expect(hash_klass.new({required: 1})).to eq({required: 1})
+    end
+  end
+
   describe "attribute_values" do
     let(:hash_klass) do
       stub_const("SimpleStructishChild", Class.new(Structish::Hash))
